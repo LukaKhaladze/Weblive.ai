@@ -17,7 +17,7 @@ export default function ServicesCards({ slots, secondaryColor, onSlotChange }: S
           <div key={`service-${index}`} className="rounded-2xl border border-ink/10 p-5 bg-shell">
             <div className="h-8 w-8 rounded-full" style={{ backgroundColor: secondaryColor }} />
             <EditableText
-              as="h4"
+              as="h3"
               className="mt-3 text-sm font-medium"
               value={services[index]?.title ?? ""}
               onChange={(value) => onSlotChange(`services.${index}.title`, value)}

@@ -17,7 +17,7 @@ export default function Testimonials({ slots, secondaryColor, onSlotChange }: Te
           <div key={`testimonial-${index}`} className="rounded-2xl border border-ink/10 p-5 bg-shell">
             <div className="h-8 w-8 rounded-full" style={{ backgroundColor: secondaryColor }} />
             <EditableText
-              as="h4"
+              as="h3"
               className="mt-3 text-sm font-medium"
               value={testimonials[index]?.name ?? ""}
               onChange={(value) => onSlotChange(`testimonials.${index}.name`, value)}

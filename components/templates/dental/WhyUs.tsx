@@ -17,7 +17,7 @@ export default function WhyUs({ slots, secondaryColor, onSlotChange }: WhyUsProp
           <div key={`benefit-${index}`} className="rounded-2xl border border-ink/10 p-5">
             <div className="h-8 w-8 rounded-full" style={{ backgroundColor: secondaryColor }} />
             <EditableText
-              as="h4"
+              as="h3"
               className="mt-3 text-sm font-medium"
               value={benefits[index]?.title ?? ""}
               onChange={(value) => onSlotChange(`benefits.${index}.title`, value)}
