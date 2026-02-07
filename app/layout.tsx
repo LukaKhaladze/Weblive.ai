@@ -7,7 +7,7 @@ const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-display" });
 
 export const metadata: Metadata = {
   title: "Weblive.ai",
-  description: "Generate AI-ready website plans with editable previews.",
+  description: "AI ვებსაიტის გეგმები რედაქტირებადი პრევიუებით.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

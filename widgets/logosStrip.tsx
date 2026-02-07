@@ -1,4 +1,5 @@
 import { Theme } from "@/lib/schema";
+import EditableText from "@/components/EditableText";
 
 type LogosStripProps = {
   variant: string;
@@ -7,17 +8,42 @@ type LogosStripProps = {
     logos: string[];
   };
   theme: Theme;
+  editable?: boolean;
+  onEdit?: (path: string, value: any) => void;
 };
 
-export default function LogosStrip({ props }: LogosStripProps) {
+export default function LogosStrip({ props, editable, onEdit }: LogosStripProps) {
   return (
     <section className="px-6 py-10">
       <div className="mx-auto max-w-6xl rounded-[32px] border border-slate-200 bg-white/70 px-8 py-6 shadow-sm">
-        <p className="text-sm text-slate-500">{props.title}</p>
+        {editable && onEdit ? (
+          <EditableText
+            as="p"
+            className="text-sm text-slate-500"
+            value={props.title}
+            onChange={(value) => onEdit("title", value)}
+          />
+        ) : (
+          <p className="text-sm text-slate-500">{props.title}</p>
+        )}
         <div className="mt-4 flex flex-wrap items-center gap-6 text-base font-semibold text-slate-700">
-          {props.logos.map((logo) => (
-            <span key={logo}>{logo}</span>
-          ))}
+          {props.logos.map((logo, index) =>
+            editable && onEdit ? (
+              <EditableText
+                key={`${logo}-${index}`}
+                as="span"
+                className="font-semibold"
+                value={logo}
+                onChange={(value) => {
+                  const next = [...props.logos];
+                  next[index] = value;
+                  onEdit("logos", next);
+                }}
+              />
+            ) : (
+              <span key={logo}>{logo}</span>
+            )
+          )}
         </div>
       </div>
     </section>

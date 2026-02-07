@@ -22,6 +22,14 @@ const businessTags = [
   "generic",
 ];
 
+const goalLabels: Record<string, string> = {
+  calls: "ზარებისთვის",
+  leads: "ლიდებისთვის",
+  bookings: "დაჯავშნებისთვის",
+  sell: "გაყიდვებისთვის",
+  visit: "ვიზიტებისთვის",
+};
+
 export type WidgetType =
   | "header"
   | "hero"
@@ -37,12 +45,12 @@ export type WidgetType =
   | "footer";
 
 export type WidgetCategory =
-  | "Header"
-  | "Hero"
-  | "Content"
-  | "Social proof"
-  | "Contact"
-  | "Footer";
+  | "სათაური"
+  | "ჰერო"
+  | "კონტენტი"
+  | "სოციალური მტკიცებულება"
+  | "კონტაქტი"
+  | "ფუტერი";
 
 export type EditableField = {
   label: string;
@@ -58,24 +66,30 @@ export type WidgetDefinition = {
   variants: string[];
   defaultProps: (input: WizardInput, index: number) => Record<string, any>;
   editable: EditableField[];
-  Component: (props: { variant: string; props: any; theme: Theme }) => JSX.Element;
+  Component: (props: {
+    variant: string;
+    props: any;
+    theme: Theme;
+    editable?: boolean;
+    onEdit?: (path: string, value: any) => void;
+  }) => JSX.Element;
 };
 
 export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   header: {
     type: "header",
-    name: "Header",
-    category: "Header",
+    name: "სათაური",
+    category: "სათაური",
     tags: [...businessTags, "navigation", "brand"],
     variants: ["centered", "split"],
     defaultProps: (input) => ({
       brand: input.businessName,
       nav: [
-        { label: "Home", href: "/" },
-        { label: "Services", href: "/services" },
-        { label: "Contact", href: "/contact" },
+        { label: "მთავარი", href: "/" },
+        { label: "სერვისები", href: "/services" },
+        { label: "კონტაქტი", href: "/contact" },
       ],
-      cta: { label: "Get Started", href: "#contact" },
+      cta: { label: "დაწყება", href: "#contact" },
       logo: input.logoUrl || "",
     }),
     editable: [
@@ -88,14 +102,14 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   },
   hero: {
     type: "hero",
-    name: "Hero",
-    category: "Hero",
+    name: "ჰერო",
+    category: "ჰერო",
     tags: [...businessTags, "headline", "cta"],
     variants: ["split-image-left", "split-image-right", "centered"],
     defaultProps: (input, index) => ({
-      headline: `${input.businessName} built for ${input.goal}`,
+      headline: `${input.businessName} შექმნილია ${goalLabels[input.goal] || "ზრდისთვის"}`,
       subheadline: input.description,
-      ctaText: "Book a call",
+      ctaText: "ზარის დაჯავშნა",
       ctaHref: "#contact",
       image: {
         src: getPlaceholderImage(index),
@@ -113,12 +127,12 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   },
   logosStrip: {
     type: "logosStrip",
-    name: "Logos Strip",
-    category: "Social proof",
+    name: "ლოგოების ზოლი",
+    category: "სოციალური მტკიცებულება",
     tags: [...businessTags, "logos"],
     variants: ["default"],
     defaultProps: () => ({
-      title: "Trusted by teams across the city",
+      title: "გუნდის ნდობა მთელ ქალაქში",
       logos: ["Northwind", "Brightline", "Everwell", "Skyward"],
     }),
     editable: [
@@ -129,16 +143,16 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   },
   servicesGrid: {
     type: "servicesGrid",
-    name: "Services Grid",
-    category: "Content",
+    name: "სერვისების ბადე",
+    category: "კონტენტი",
     tags: [...businessTags, "services", "grid"],
     variants: ["cards", "icons"],
     defaultProps: (input) => ({
-      title: `What ${input.businessName} delivers`,
+      title: `რას გაწვდის ${input.businessName}`,
       items: [
-        { title: "Primary Service", desc: "Clear outcomes with expert care.", icon: "sparkles" },
-        { title: "Specialist Support", desc: "Guidance tailored to your needs.", icon: "shield" },
-        { title: "Fast Response", desc: "Quick turnarounds and follow-ups.", icon: "bolt" },
+        { title: "მთავარი სერვისი", desc: "გამოცდილებაზე დაფუძნებული მკაფიო შედეგები.", icon: "sparkles" },
+        { title: "სპეციალისტის მხარდაჭერა", desc: "კონკრეტულად თქვენს საჭიროებებზე მორგებული რჩევები.", icon: "shield" },
+        { title: "სწრაფი რეაგირება", desc: "მოკლე ვადები და დროული უკუკავშირი.", icon: "bolt" },
       ],
     }),
     editable: [
@@ -149,16 +163,16 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   },
   features: {
     type: "features",
-    name: "Features",
-    category: "Content",
+    name: "მახასიათებლები",
+    category: "კონტენტი",
     tags: [...businessTags, "features", "benefits"],
     variants: ["stacked"],
     defaultProps: () => ({
-      title: "Why customers choose us",
+      title: "რატომ გვირჩევენ მომხმარებლები",
       items: [
-        { title: "Transparent pricing", desc: "Know exactly what to expect." },
-        { title: "Fast onboarding", desc: "Get started within 24 hours." },
-        { title: "Dedicated support", desc: "We stay with you after launch." },
+        { title: "გამჭვირვალე ფასები", desc: "ზუსტად იცით რას მიიღებთ." },
+        { title: "სწრაფი დაწყება", desc: "დაწყება 24 საათში." },
+        { title: "პერსონალური მხარდაჭერა", desc: "გვერდით დაგიდგებით გაშვების შემდეგაც." },
       ],
     }),
     editable: [
@@ -169,22 +183,22 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   },
   testimonials: {
     type: "testimonials",
-    name: "Testimonials",
-    category: "Social proof",
+    name: "მიმოხილვები",
+    category: "სოციალური მტკიცებულება",
     tags: [...businessTags, "reviews"],
     variants: ["cards"],
     defaultProps: () => ({
-      title: "Loved by clients",
+      title: "კლიენტები გვაფასებენ",
       items: [
         {
-          quote: "Their team made everything simple and fast.",
-          name: "Avery Lawson",
-          role: "Operations Lead",
+          quote: "მათი გუნდი ყველაფერს მარტივად და სწრაფად აგვარებს.",
+          name: "ავერი ლოუსონი",
+          role: "ოპერაციების ხელმძღვანელი",
         },
         {
-          quote: "Our leads doubled within a week.",
-          name: "Jordan Lee",
-          role: "Founder",
+          quote: "ლიდები ერთ კვირაში გაორმაგდა.",
+          name: "ჯორდან ლი",
+          role: "დამფუძნებელი",
         },
       ],
     }),
@@ -196,15 +210,15 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   },
   faq: {
     type: "faq",
-    name: "FAQ",
-    category: "Content",
+    name: "კითხვები",
+    category: "კონტენტი",
     tags: [...businessTags, "faq"],
     variants: ["accordion"],
     defaultProps: () => ({
-      title: "Frequently asked questions",
+      title: "ხშირად დასმული კითხვები",
       items: [
-        { q: "How fast can we launch?", a: "Most sites go live in a week." },
-        { q: "Can I update content later?", a: "Yes, edits are simple and fast." },
+        { q: "რამდენად სწრაფად შეგვიძლია გაშვება?", a: "უმეტეს შემთხვევაში 1 კვირაში." },
+        { q: "შემიძლია კონტენტის შეცვლა მოგვიანებით?", a: "დიახ, ცვლილებები მარტივად კეთდება." },
       ],
     }),
     editable: [
@@ -215,15 +229,15 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   },
   team: {
     type: "team",
-    name: "Team",
-    category: "Content",
+    name: "გუნდი",
+    category: "კონტენტი",
     tags: [...businessTags, "team"],
     variants: ["grid"],
     defaultProps: () => ({
-      title: "Meet the team",
+      title: "გაიცანი გუნდი",
       members: [
-        { name: "Taylor Brooks", role: "Lead Specialist", bio: "10+ years of expertise." },
-        { name: "Riley Chen", role: "Client Success", bio: "Focused on customer outcomes." },
+        { name: "ტეილორ ბრუკსი", role: "მთავარი სპეციალისტი", bio: "10+ წლის გამოცდილება." },
+        { name: "რაილი ჩენი", role: "კლიენტთა წარმატება", bio: "ფოკუსი შედეგებზე." },
       ],
     }),
     editable: [
@@ -234,16 +248,16 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   },
   pricing: {
     type: "pricing",
-    name: "Pricing",
-    category: "Content",
+    name: "ფასები",
+    category: "კონტენტი",
     tags: [...businessTags, "pricing"],
     variants: ["tiers"],
     defaultProps: () => ({
-      title: "Simple pricing",
+      title: "მარტივი ფასები",
       tiers: [
-        { name: "Starter", price: "$199", desc: "For early-stage teams" },
-        { name: "Growth", price: "$399", desc: "For scaling operations" },
-        { name: "Premium", price: "Custom", desc: "Tailored for enterprises" },
+        { name: "სტარტი", price: "$199", desc: "საწყისი გუნდებისთვის" },
+        { name: "ზრდა", price: "$399", desc: "მასშტაბირებისთვის" },
+        { name: "პრემიუმი", price: "ინდივიდუალური", desc: "კომპანიებისთვის მორგებული" },
       ],
     }),
     editable: [
@@ -254,15 +268,15 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   },
   blogPreview: {
     type: "blogPreview",
-    name: "Blog Preview",
-    category: "Content",
+    name: "ბლოგის პრევიუ",
+    category: "კონტენტი",
     tags: [...businessTags, "blog"],
     variants: ["cards"],
     defaultProps: () => ({
-      title: "Latest insights",
+      title: "ბოლო სიახლეები",
       posts: [
-        { title: "How to build trust quickly", date: "Feb 2", excerpt: "A short guide on credibility." },
-        { title: "Designing for conversion", date: "Jan 18", excerpt: "Key UX moves to try." },
+        { title: "როგორ ავაშენოთ ნდობა სწრაფად", date: "2 თებ", excerpt: "კრედიბილობის მოკლე გზამკვლევი." },
+        { title: "კონვერსიისთვის დიზაინი", date: "18 იან", excerpt: "UX-ის ძირითადი ნაბიჯები." },
       ],
     }),
     editable: [
@@ -273,16 +287,16 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   },
   contact: {
     type: "contact",
-    name: "Contact",
-    category: "Contact",
+    name: "კონტაქტი",
+    category: "კონტაქტი",
     tags: [...businessTags, "contact"],
     variants: ["split", "centered"],
     defaultProps: (input) => ({
-      title: "Let’s talk",
-      phone: input.contact.phone || "+1 (555) 555-5555",
+      title: "დაგვიკავშირდით",
+      phone: input.contact.phone || "+995 (555) 55-55-55",
       email: input.contact.email || "hello@weblive.ai",
-      address: input.contact.address || "123 Main St, City",
-      hours: input.contact.hours || "Mon-Fri 9am - 6pm",
+      address: input.contact.address || "მთავარი ქუჩა 123, ქალაქი",
+      hours: input.contact.hours || "ორშ-პარ 09:00 - 18:00",
     }),
     editable: [
       { label: "Title", path: "title", type: "text" },
@@ -295,16 +309,16 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
   },
   footer: {
     type: "footer",
-    name: "Footer",
-    category: "Footer",
+    name: "ფუტერი",
+    category: "ფუტერი",
     tags: [...businessTags, "footer"],
     variants: ["stacked", "minimal"],
     defaultProps: (input) => ({
       brand: input.businessName,
-      tagline: "Designed to convert",
+      tagline: "კონვერსიაზე ორიენტირებული",
       links: [
-        { label: "Privacy", href: "/privacy" },
-        { label: "Terms", href: "/terms" },
+        { label: "კონფიდენციალურობა", href: "/privacy" },
+        { label: "პირობები", href: "/terms" },
       ],
       social: [
         { label: "Instagram", href: input.contact.socials?.instagram || "#" },
@@ -329,11 +343,21 @@ export function renderWidget(
   widgetType: WidgetType,
   variant: string,
   props: any,
-  theme: Theme
+  theme: Theme,
+  editable?: boolean,
+  onEdit?: (path: string, value: any) => void
 ) {
   const WidgetComponent = widgetRegistry[widgetType]?.Component;
   if (!WidgetComponent) {
     return null;
   }
-  return <WidgetComponent variant={variant} props={props} theme={theme} />;
+  return (
+    <WidgetComponent
+      variant={variant}
+      props={props}
+      theme={theme}
+      editable={editable}
+      onEdit={onEdit}
+    />
+  );
 }

@@ -1,4 +1,5 @@
 import { Theme } from "@/lib/schema";
+import EditableText from "@/components/EditableText";
 
 type HeroProps = {
   variant: string;
@@ -10,9 +11,11 @@ type HeroProps = {
     image: { src: string; alt: string };
   };
   theme: Theme;
+  editable?: boolean;
+  onEdit?: (path: string, value: any) => void;
 };
 
-export default function Hero({ variant, props }: HeroProps) {
+export default function Hero({ variant, props, editable, onEdit }: HeroProps) {
   const isCentered = variant === "centered";
   const reverse = variant === "split-image-right";
 
@@ -27,22 +30,49 @@ export default function Hero({ variant, props }: HeroProps) {
           <p className="text-sm uppercase tracking-[0.3em] text-slate-500">
             Weblive.ai
           </p>
-          <h1 className="text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl">
-            {props.headline}
-          </h1>
-          <p className="text-lg text-slate-600">{props.subheadline}</p>
+          {editable && onEdit ? (
+            <EditableText
+              as="h2"
+              className="text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl"
+              value={props.headline}
+              onChange={(value) => onEdit("headline", value)}
+            />
+          ) : (
+            <h1 className="text-4xl font-semibold tracking-tight text-slate-900 md:text-5xl">
+              {props.headline}
+            </h1>
+          )}
+          {editable && onEdit ? (
+            <EditableText
+              as="p"
+              className="text-lg text-slate-600"
+              value={props.subheadline}
+              onChange={(value) => onEdit("subheadline", value)}
+            />
+          ) : (
+            <p className="text-lg text-slate-600">{props.subheadline}</p>
+          )}
           <div className={`${isCentered ? "justify-center" : ""} flex gap-3`}>
             <a
               href={props.ctaHref}
               className="rounded-full bg-[color:var(--primary)] px-6 py-3 text-sm font-semibold text-white"
             >
-              {props.ctaText}
+              {editable && onEdit ? (
+                <EditableText
+                  as="span"
+                  className="font-semibold"
+                  value={props.ctaText}
+                  onChange={(value) => onEdit("ctaText", value)}
+                />
+              ) : (
+                props.ctaText
+              )}
             </a>
             <a
               href="#services"
               className="rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700"
             >
-              Explore services
+              სერვისების ნახვა
             </a>
           </div>
         </div>

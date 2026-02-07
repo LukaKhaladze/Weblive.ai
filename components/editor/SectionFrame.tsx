@@ -43,7 +43,7 @@ export default function SectionFrame({
             onMoveUp();
           }}
         >
-          Up
+          ზემოთ
         </button>
         <button
           className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs"
@@ -52,7 +52,7 @@ export default function SectionFrame({
             onMoveDown();
           }}
         >
-          Down
+          ქვემოთ
         </button>
         <button
           className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs"
@@ -61,7 +61,7 @@ export default function SectionFrame({
             onDuplicate();
           }}
         >
-          Duplicate
+          დუბლირება
         </button>
         <button
           className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs text-red-600"
@@ -70,7 +70,7 @@ export default function SectionFrame({
             onDelete();
           }}
         >
-          Delete
+          წაშლა
         </button>
       </div>
       <div
@@ -78,7 +78,7 @@ export default function SectionFrame({
         {...attributes}
         {...listeners}
       >
-        Drag
+        გადაადგილება
       </div>
       <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
         {children}

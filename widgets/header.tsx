@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Theme } from "@/lib/schema";
+import EditableText from "@/components/EditableText";
 
 type HeaderProps = {
   variant: string;
@@ -10,9 +11,11 @@ type HeaderProps = {
     logo?: string;
   };
   theme: Theme;
+  editable?: boolean;
+  onEdit?: (path: string, value: any) => void;
 };
 
-export default function Header({ variant, props }: HeaderProps) {
+export default function Header({ variant, props, editable, onEdit }: HeaderProps) {
   return (
     <header className="py-6 px-6">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6">
@@ -26,7 +29,16 @@ export default function Header({ variant, props }: HeaderProps) {
           ) : (
             <div className="h-10 w-10 rounded-xl bg-[color:var(--primary)]/15" />
           )}
-          <span className="font-semibold text-lg tracking-tight">{props.brand}</span>
+          {editable && onEdit ? (
+            <EditableText
+              as="span"
+              className="font-semibold text-lg tracking-tight"
+              value={props.brand}
+              onChange={(value) => onEdit("brand", value)}
+            />
+          ) : (
+            <span className="font-semibold text-lg tracking-tight">{props.brand}</span>
+          )}
         </div>
         <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
           {props.nav.map((item) => (
@@ -39,7 +51,16 @@ export default function Header({ variant, props }: HeaderProps) {
           href={props.cta.href}
           className="rounded-full bg-[color:var(--primary)] px-4 py-2 text-sm font-semibold text-white shadow"
         >
-          {props.cta.label}
+          {editable && onEdit ? (
+            <EditableText
+              as="span"
+              className="font-semibold"
+              value={props.cta.label}
+              onChange={(value) => onEdit("cta.label", value)}
+            />
+          ) : (
+            props.cta.label
+          )}
         </Link>
       </div>
       {variant === "centered" && (

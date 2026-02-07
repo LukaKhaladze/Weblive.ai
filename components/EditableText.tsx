@@ -38,6 +38,9 @@ export default function EditableText({
       className={className}
       style={style}
       data-placeholder={placeholder}
+      onInput={(event: React.FormEvent<HTMLElement>) =>
+        onChange((event.currentTarget as HTMLElement).innerText)
+      }
       onBlur={(event: React.FocusEvent<HTMLElement>) =>
         onChange(event.currentTarget.innerText.trim())
       }

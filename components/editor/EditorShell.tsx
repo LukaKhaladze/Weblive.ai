@@ -16,7 +16,7 @@ import { renderWidget, widgetRegistry, WidgetType } from "@/widgets/registry";
 import { Site, SeoPayload, WizardInput } from "@/lib/schema";
 import { updateByPath } from "@/lib/deepUpdate";
 
-const tabs = ["Sections", "Pages", "Theme", "SEO"] as const;
+const tabs = ["სექციები", "გვერდები", "თემა", "SEO"] as const;
 
 export default function EditorShell({
   project,
@@ -36,7 +36,7 @@ export default function EditorShell({
   const [site, setSite] = useState<Site>(project.site);
   const [seo, setSeo] = useState<SeoPayload>(project.seo);
   const [input, setInput] = useState<WizardInput>(project.input);
-  const [selectedTab, setSelectedTab] = useState<(typeof tabs)[number]>("Sections");
+  const [selectedTab, setSelectedTab] = useState<(typeof tabs)[number]>("სექციები");
   const [selectedPageId, setSelectedPageId] = useState(site.pages[0]?.id);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     site.pages[0]?.sections[0]?.id || null
@@ -168,7 +168,7 @@ export default function EditorShell({
     URL.revokeObjectURL(url);
   }
 
-  const expiresAt = new Date(project.expires_at).toLocaleDateString("en-US", {
+  const expiresAt = new Date(project.expires_at).toLocaleDateString("ka-GE", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -176,8 +176,8 @@ export default function EditorShell({
 
   if (!currentPage) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-        <p>No pages available.</p>
+    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
+        <p>გვერდები არ მოიძებნა.</p>
       </div>
     );
   }
@@ -188,26 +188,26 @@ export default function EditorShell({
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 text-white">
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-white/60">Weblive.ai</p>
-            <h1 className="text-lg font-semibold">Editor</h1>
+            <h1 className="text-lg font-semibold">რედაქტორი</h1>
           </div>
           <div className="flex items-center gap-3">
             <button
               className="rounded-full border border-white/20 px-4 py-2 text-sm"
               onClick={() => setViewMode(viewMode === "desktop" ? "mobile" : "desktop")}
             >
-              {viewMode === "desktop" ? "Mobile" : "Desktop"}
+              {viewMode === "desktop" ? "მობილური" : "დესკტოპი"}
             </button>
             <button
               className="rounded-full border border-white/20 px-4 py-2 text-sm"
               onClick={() => setShareOpen(true)}
             >
-              Share
+              გაზიარება
             </button>
             <button
               className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900"
               onClick={downloadSeo}
             >
-              Download SEO JSON
+              SEO JSON ჩამოტვირთვა
             </button>
           </div>
         </div>
@@ -229,13 +229,13 @@ export default function EditorShell({
             ))}
           </div>
 
-          {selectedTab === "Sections" && (
+          {selectedTab === "სექციები" && (
             <div className="space-y-3">
               <button
                 className="w-full rounded-full bg-[color:var(--primary)] px-4 py-2 text-sm font-semibold text-white"
                 onClick={() => setPickerOpen(true)}
               >
-                Add section
+                სექციის დამატება
               </button>
               <div className="space-y-2 text-sm">
                 {currentPage.sections.map((section) => (
@@ -253,7 +253,7 @@ export default function EditorShell({
             </div>
           )}
 
-          {selectedTab === "Pages" && (
+          {selectedTab === "გვერდები" && (
             <div className="space-y-2 text-sm">
               {site.pages.map((page) => (
                 <button
@@ -269,10 +269,10 @@ export default function EditorShell({
             </div>
           )}
 
-          {selectedTab === "Theme" && (
+          {selectedTab === "თემა" && (
             <div className="space-y-4 text-sm">
               <label className="block">
-                Primary Color
+                მთავარი ფერი
                 <input
                   type="color"
                   value={site.theme.primaryColor}
@@ -286,7 +286,7 @@ export default function EditorShell({
                 />
               </label>
               <label className="block">
-                Secondary Color
+                მეორადი ფერი
                 <input
                   type="color"
                   value={site.theme.secondaryColor}
@@ -319,11 +319,13 @@ export default function EditorShell({
             <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
               <SortableContext items={currentPage.sections.map((section) => section.id)}>
                 <div className="space-y-8 p-4">
-                  {currentPage.sections.map((section, index) => (
+                  {currentPage.sections.map((section, index) => {
+                    const isSelected = section.id === selectedSectionId;
+                    return (
                     <SectionFrame
                       key={section.id}
                       id={section.id}
-                      selected={section.id === selectedSectionId}
+                      selected={isSelected}
                       onSelect={() => setSelectedSectionId(section.id)}
                       onDelete={() => handleDeleteSection(section.id)}
                       onDuplicate={() => {
@@ -373,107 +375,26 @@ export default function EditorShell({
                         }));
                       }}
                     >
-                      {renderWidget(section.widget as WidgetType, section.variant, section.props, site.theme)}
+                      {renderWidget(
+                        section.widget as WidgetType,
+                        section.variant,
+                        section.props,
+                        site.theme,
+                        isSelected,
+                        (path, value) => {
+                          updateSection(section.id, (sectionData) => ({
+                            ...sectionData,
+                            props: updateByPath(sectionData.props, path, value),
+                          }));
+                        }
+                      )}
                     </SectionFrame>
-                  ))}
+                  );
+                  })}
                 </div>
               </SortableContext>
             </DndContext>
           </div>
-
-          {selectedSection && selectedTab !== "SEO" && (
-            <div className="mt-6 rounded-[28px] border border-slate-200 bg-white p-6">
-              <h3 className="text-lg font-semibold text-slate-900">Edit Section</h3>
-              <div className="mt-4 grid gap-4 md:grid-cols-2">
-                {widgetRegistry[selectedSection.widget as WidgetType]?.editable.map((field) => (
-                  <label key={field.path} className="text-sm">
-                    <span className="text-slate-600">{field.label}</span>
-                    {field.type === "textarea" && (
-                      <textarea
-                        className="mt-2 w-full rounded-xl border border-slate-200 p-3"
-                        rows={3}
-                        value={field.path
-                          .split(".")
-                          .reduce((acc: any, key) => acc?.[key], selectedSection.props) || ""}
-                        onChange={(event) =>
-                          updateSection(selectedSection.id, (section) => ({
-                            ...section,
-                            props: updateByPath(section.props, field.path, event.target.value),
-                          }))
-                        }
-                      />
-                    )}
-                    {field.type === "text" && (
-                      <input
-                        className="mt-2 w-full rounded-xl border border-slate-200 p-3"
-                        value={field.path
-                          .split(".")
-                          .reduce((acc: any, key) => acc?.[key], selectedSection.props) || ""}
-                        onChange={(event) =>
-                          updateSection(selectedSection.id, (section) => ({
-                            ...section,
-                            props: updateByPath(section.props, field.path, event.target.value),
-                          }))
-                        }
-                      />
-                    )}
-                    {field.type === "list" && (
-                      <textarea
-                        className="mt-2 w-full rounded-xl border border-slate-200 p-3 text-xs"
-                        rows={4}
-                        value={JSON.stringify(
-                          field.path
-                            .split(".")
-                            .reduce((acc: any, key) => acc?.[key], selectedSection.props) || [],
-                          null,
-                          2
-                        )}
-                        onChange={(event) => {
-                          try {
-                            const parsed = JSON.parse(event.target.value);
-                            updateSection(selectedSection.id, (section) => ({
-                              ...section,
-                              props: updateByPath(section.props, field.path, parsed),
-                            }));
-                          } catch {
-                            // ignore invalid JSON while typing
-                          }
-                        }}
-                      />
-                    )}
-                    {field.type === "image" && (
-                      <div className="mt-2">
-                        <input
-                          type="text"
-                          className="w-full rounded-xl border border-slate-200 p-3 text-xs"
-                          value={field.path
-                            .split(".")
-                            .reduce((acc: any, key) => acc?.[key], selectedSection.props) || ""}
-                          onChange={(event) =>
-                            updateSection(selectedSection.id, (section) => ({
-                              ...section,
-                              props: updateByPath(section.props, field.path, event.target.value),
-                            }))
-                          }
-                        />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="mt-2 text-xs"
-                          onChange={(event) => {
-                            const file = event.target.files?.[0];
-                            if (file) {
-                              handleImageUpload(selectedSection.id, field.path, file);
-                            }
-                          }}
-                        />
-                      </div>
-                    )}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
         </main>
       </div>
 
@@ -487,13 +408,13 @@ export default function EditorShell({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6">
           <div className="w-full max-w-lg rounded-[28px] bg-white p-6 shadow-xl">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Share link</h2>
-              <button className="text-sm text-slate-500" onClick={() => setShareOpen(false)}>
-                Close
-              </button>
+            <h2 className="text-xl font-semibold">გაზიარების ბმული</h2>
+            <button className="text-sm text-slate-500" onClick={() => setShareOpen(false)}>
+              დახურვა
+            </button>
             </div>
             <p className="mt-2 text-sm text-slate-600">
-              View-only link expires on {expiresAt}.
+              მხოლოდ ნახვის ბმულის ვადა იწურება {expiresAt}.
             </p>
             <div className="mt-4 flex items-center gap-2">
               <input
@@ -507,7 +428,7 @@ export default function EditorShell({
                   navigator.clipboard.writeText(`${baseUrl}/s/${project.share_slug}`);
                 }}
               >
-                Copy
+                კოპირება
               </button>
             </div>
           </div>

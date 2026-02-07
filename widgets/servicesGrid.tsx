@@ -1,4 +1,5 @@
 import { Theme } from "@/lib/schema";
+import EditableText from "@/components/EditableText";
 
 type ServicesGridProps = {
   variant: string;
@@ -7,18 +8,29 @@ type ServicesGridProps = {
     items: { title: string; desc: string; icon: string }[];
   };
   theme: Theme;
+  editable?: boolean;
+  onEdit?: (path: string, value: any) => void;
 };
 
-export default function ServicesGrid({ variant, props }: ServicesGridProps) {
+export default function ServicesGrid({ variant, props, editable, onEdit }: ServicesGridProps) {
   const isIcons = variant === "icons";
   return (
     <section id="services" className="px-6 py-16">
       <div className="mx-auto max-w-6xl">
-        <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
+        {editable && onEdit ? (
+          <EditableText
+            as="h2"
+            className="text-3xl font-semibold text-slate-900"
+            value={props.title}
+            onChange={(value) => onEdit("title", value)}
+          />
+        ) : (
+          <h2 className="text-3xl font-semibold text-slate-900">{props.title}</h2>
+        )}
         <div className="mt-8 grid gap-6 md:grid-cols-3">
-          {props.items.map((item) => (
+          {props.items.map((item, index) => (
             <div
-              key={item.title}
+              key={`${item.title}-${index}`}
               className={`rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm ${
                 isIcons ? "flex gap-4" : ""
               }`}
@@ -27,8 +39,34 @@ export default function ServicesGrid({ variant, props }: ServicesGridProps) {
                 <div className="h-10 w-10 rounded-full bg-[color:var(--primary)]/15" />
               )}
               <div>
-                <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
-                <p className="mt-2 text-sm text-slate-600">{item.desc}</p>
+                {editable && onEdit ? (
+                  <EditableText
+                    as="h3"
+                    className="text-lg font-semibold text-slate-900"
+                    value={item.title}
+                    onChange={(value) => {
+                      const next = [...props.items];
+                      next[index] = { ...next[index], title: value };
+                      onEdit("items", next);
+                    }}
+                  />
+                ) : (
+                  <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
+                )}
+                {editable && onEdit ? (
+                  <EditableText
+                    as="p"
+                    className="mt-2 text-sm text-slate-600"
+                    value={item.desc}
+                    onChange={(value) => {
+                      const next = [...props.items];
+                      next[index] = { ...next[index], desc: value };
+                      onEdit("items", next);
+                    }}
+                  />
+                ) : (
+                  <p className="mt-2 text-sm text-slate-600">{item.desc}</p>
+                )}
               </div>
             </div>
           ))}

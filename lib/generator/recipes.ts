@@ -18,7 +18,7 @@ export const recipes: Record<Category, Recipe> = {
     pages: [
       {
         id: "home",
-        name: "Home",
+        name: "მთავარი",
         slug: "/",
         sections: [
           "header",
@@ -34,19 +34,19 @@ export const recipes: Record<Category, Recipe> = {
       },
       {
         id: "about",
-        name: "About",
+        name: "ჩვენ შესახებ",
         slug: "/about",
         sections: ["header", "team", "features", "testimonials", "footer"],
       },
       {
         id: "services",
-        name: "Services",
+        name: "სერვისები",
         slug: "/services",
         sections: ["header", "servicesGrid", "pricing", "faq", "footer"],
       },
       {
         id: "contact",
-        name: "Contact",
+        name: "კონტაქტი",
         slug: "/contact",
         sections: ["header", "contact", "footer"],
       },
@@ -56,7 +56,7 @@ export const recipes: Record<Category, Recipe> = {
     pages: [
       {
         id: "home",
-        name: "Home",
+        name: "მთავარი",
         slug: "/",
         sections: [
           "header",
@@ -71,19 +71,19 @@ export const recipes: Record<Category, Recipe> = {
       },
       {
         id: "practice",
-        name: "Practice Areas",
+        name: "საქმის მიმართულებები",
         slug: "/practice",
         sections: ["header", "servicesGrid", "faq", "footer"],
       },
       {
         id: "about",
-        name: "About",
+        name: "ჩვენ შესახებ",
         slug: "/about",
         sections: ["header", "team", "testimonials", "footer"],
       },
       {
         id: "contact",
-        name: "Contact",
+        name: "კონტაქტი",
         slug: "/contact",
         sections: ["header", "contact", "footer"],
       },
@@ -93,7 +93,7 @@ export const recipes: Record<Category, Recipe> = {
     pages: [
       {
         id: "home",
-        name: "Home",
+        name: "მთავარი",
         slug: "/",
         sections: [
           "header",
@@ -108,19 +108,19 @@ export const recipes: Record<Category, Recipe> = {
       },
       {
         id: "products",
-        name: "Products",
+        name: "პროდუქტები",
         slug: "/products",
         sections: ["header", "features", "pricing", "footer"],
       },
       {
         id: "about",
-        name: "About",
+        name: "ჩვენ შესახებ",
         slug: "/about",
         sections: ["header", "features", "team", "footer"],
       },
       {
         id: "contact",
-        name: "Contact",
+        name: "კონტაქტი",
         slug: "/contact",
         sections: ["header", "contact", "footer"],
       },
@@ -130,7 +130,7 @@ export const recipes: Record<Category, Recipe> = {
     pages: [
       {
         id: "home",
-        name: "Home",
+        name: "მთავარი",
         slug: "/",
         sections: [
           "header",
@@ -144,19 +144,19 @@ export const recipes: Record<Category, Recipe> = {
       },
       {
         id: "menu",
-        name: "Menu",
+        name: "მენიუ",
         slug: "/menu",
         sections: ["header", "servicesGrid", "features", "footer"],
       },
       {
         id: "about",
-        name: "About",
+        name: "ჩვენ შესახებ",
         slug: "/about",
         sections: ["header", "team", "testimonials", "footer"],
       },
       {
         id: "contact",
-        name: "Contact",
+        name: "კონტაქტი",
         slug: "/contact",
         sections: ["header", "contact", "footer"],
       },
@@ -166,7 +166,7 @@ export const recipes: Record<Category, Recipe> = {
     pages: [
       {
         id: "home",
-        name: "Home",
+        name: "მთავარი",
         slug: "/",
         sections: [
           "header",
@@ -181,19 +181,19 @@ export const recipes: Record<Category, Recipe> = {
       },
       {
         id: "services",
-        name: "Services",
+        name: "სერვისები",
         slug: "/services",
         sections: ["header", "servicesGrid", "pricing", "faq", "footer"],
       },
       {
         id: "work",
-        name: "Work",
+        name: "ნამუშევრები",
         slug: "/work",
         sections: ["header", "features", "testimonials", "footer"],
       },
       {
         id: "contact",
-        name: "Contact",
+        name: "კონტაქტი",
         slug: "/contact",
         sections: ["header", "contact", "footer"],
       },
@@ -203,7 +203,7 @@ export const recipes: Record<Category, Recipe> = {
     pages: [
       {
         id: "home",
-        name: "Home",
+        name: "მთავარი",
         slug: "/",
         sections: [
           "header",
@@ -217,13 +217,13 @@ export const recipes: Record<Category, Recipe> = {
       },
       {
         id: "about",
-        name: "About",
+        name: "ჩვენ შესახებ",
         slug: "/about",
         sections: ["header", "features", "team", "footer"],
       },
       {
         id: "contact",
-        name: "Contact",
+        name: "კონტაქტი",
         slug: "/contact",
         sections: ["header", "contact", "footer"],
       },

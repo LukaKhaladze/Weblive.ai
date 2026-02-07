@@ -7,20 +7,20 @@ import { recipes } from "@/lib/generator/recipes";
 import { widgetRegistry } from "@/widgets/registry";
 
 const categories = [
-  { id: "clinic", label: "Clinic" },
-  { id: "lawyer", label: "Lawyer" },
-  { id: "ecommerce", label: "E-commerce" },
-  { id: "restaurant", label: "Restaurant" },
-  { id: "agency", label: "Agency" },
-  { id: "generic", label: "Generic" },
+  { id: "clinic", label: "კლინიკა" },
+  { id: "lawyer", label: "იურისტი" },
+  { id: "ecommerce", label: "ელ-კომერცია" },
+  { id: "restaurant", label: "რესტორანი" },
+  { id: "agency", label: "სააგენტო" },
+  { id: "generic", label: "ზოგადი" },
 ] as const;
 
 const goals = [
-  { id: "calls", label: "Calls" },
-  { id: "leads", label: "Leads" },
-  { id: "bookings", label: "Bookings" },
-  { id: "sell", label: "Sell" },
-  { id: "visit", label: "Visit" },
+  { id: "calls", label: "ზარები" },
+  { id: "leads", label: "ლიდები" },
+  { id: "bookings", label: "დაჯავშნა" },
+  { id: "sell", label: "გაყიდვა" },
+  { id: "visit", label: "ვიზიტები" },
 ] as const;
 
 const defaultInput: WizardInput = {
@@ -50,15 +50,15 @@ const defaultInput: WizardInput = {
 };
 
 const steps = [
-  "Business name",
-  "Category",
-  "Description",
-  "Main goal",
-  "Pages",
-  "Brand colors",
-  "Logo",
-  "Contact",
-  "Review",
+  "ბიზნესის დასახელება",
+  "კატეგორია",
+  "აღწერა",
+  "მთავარი მიზანი",
+  "გვერდები",
+  "ბრენდის ფერები",
+  "ლოგო",
+  "კონტაქტი",
+  "გადახედვა",
 ];
 
 export default function BuildPage() {
@@ -90,7 +90,7 @@ export default function BuildPage() {
     const data = await response.json();
     if (!response.ok) {
       setLoading(false);
-      alert("Generation failed.");
+      alert("გენერაცია ვერ შესრულდა.");
       return;
     }
 
@@ -137,10 +137,10 @@ export default function BuildPage() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-white/60">Weblive.ai</p>
-            <h1 className="text-3xl font-semibold">Build your site</h1>
+            <h1 className="text-3xl font-semibold">შექმენი შენი საიტი</h1>
           </div>
           <div className="text-sm text-white/60">
-            Step {step + 1} of {steps.length}
+            ნაბიჯი {step + 1} / {steps.length}
           </div>
         </div>
 
@@ -149,7 +149,7 @@ export default function BuildPage() {
 
           {step === 0 && (
             <div className="mt-6">
-              <label className="text-sm text-white/70">Business name</label>
+              <label className="text-sm text-white/70">ბიზნესის დასახელება</label>
               <input
                 className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3"
                 value={input.businessName}
@@ -177,7 +177,7 @@ export default function BuildPage() {
                   }
                 >
                   <h3 className="text-lg font-semibold">{category.label}</h3>
-                  <p className="mt-2 text-sm opacity-70">Best for {category.label.toLowerCase()}.</p>
+                  <p className="mt-2 text-sm opacity-70">შესაფერისია {category.label.toLowerCase()}-სთვის.</p>
                 </button>
               ))}
             </div>
@@ -185,7 +185,7 @@ export default function BuildPage() {
 
           {step === 2 && (
             <div className="mt-6">
-              <label className="text-sm text-white/70">Short description</label>
+              <label className="text-sm text-white/70">მოკლე აღწერა</label>
               <textarea
                 className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3"
                 rows={4}
@@ -236,7 +236,7 @@ export default function BuildPage() {
           {step === 5 && (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <label className="text-sm text-white/70">
-                Primary color
+                მთავარი ფერი
                 <input
                   type="color"
                   value={input.brand.primaryColor}
@@ -247,7 +247,7 @@ export default function BuildPage() {
                 />
               </label>
               <label className="text-sm text-white/70">
-                Secondary color
+                მეორადი ფერი
                 <input
                   type="color"
                   value={input.brand.secondaryColor}
@@ -265,14 +265,14 @@ export default function BuildPage() {
                     setInput({ ...input, brand: { ...input.brand, extractFromLogo: event.target.checked } })
                   }
                 />
-                Extract colors from logo (placeholder behavior)
+                ლოგოდან ფერების ამოღება (დროებითი ქცევა)
               </label>
             </div>
           )}
 
           {step === 6 && (
             <div className="mt-6 space-y-3">
-              <label className="text-sm text-white/70">Upload logo (optional)</label>
+              <label className="text-sm text-white/70">ლოგოს ატვირთვა (არასავალდებულო)</label>
               <input
                 type="file"
                 accept="image/*"
@@ -285,7 +285,7 @@ export default function BuildPage() {
           {step === 7 && (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <label className="text-sm text-white/70">
-                Phone
+                ტელეფონი
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3"
                   value={input.contact.phone}
@@ -298,7 +298,7 @@ export default function BuildPage() {
                 />
               </label>
               <label className="text-sm text-white/70">
-                Email
+                ელ. ფოსტა
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3"
                   value={input.contact.email}
@@ -311,7 +311,7 @@ export default function BuildPage() {
                 />
               </label>
               <label className="text-sm text-white/70">
-                Address
+                მისამართი
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3"
                   value={input.contact.address}
@@ -324,7 +324,7 @@ export default function BuildPage() {
                 />
               </label>
               <label className="text-sm text-white/70">
-                Hours
+                სამუშაო საათები
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3"
                   value={input.contact.hours}
@@ -342,17 +342,17 @@ export default function BuildPage() {
           {step === 8 && (
             <div className="mt-6 space-y-4 text-sm text-white/70">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/50">Summary</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-white/50">შეჯამება</p>
                 <p className="mt-2">{input.businessName}</p>
                 <p>{input.description}</p>
-                <p>Goal: {input.goal}</p>
+                <p>მიზანი: {goals.find((goal) => goal.id === input.goal)?.label}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/50">Pages</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-white/50">გვერდები</p>
                 <p className="mt-2">{input.pages.join(", ")}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-white/50">Widgets</p>
+                <p className="text-xs uppercase tracking-[0.3em] text-white/50">ვიჯეტები</p>
                 <p className="mt-2">{Object.values(widgetRegistry).map((w) => w.name).slice(0, 6).join(", ")}...</p>
               </div>
             </div>
@@ -364,7 +364,7 @@ export default function BuildPage() {
               onClick={() => setStep((prev) => Math.max(prev - 1, 0))}
               disabled={step === 0}
             >
-              Back
+              უკან
             </button>
             {step < steps.length - 1 ? (
               <button
@@ -373,7 +373,7 @@ export default function BuildPage() {
                 }`}
                 onClick={() => canNext() && setStep((prev) => Math.min(prev + 1, steps.length - 1))}
               >
-                Next
+                შემდეგი
               </button>
             ) : (
               <button
@@ -381,7 +381,7 @@ export default function BuildPage() {
                 onClick={handleGenerate}
                 disabled={loading}
               >
-                {loading ? "Generating..." : "Generate site"}
+                {loading ? "მზადდება..." : "საიტის გენერაცია"}
               </button>
             )}
           </div>
