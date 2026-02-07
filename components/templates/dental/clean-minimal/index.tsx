@@ -16,7 +16,9 @@ export const CleanMinimalTemplates: Record<string, (props: TemplateProps) => JSX
         <div className="space-y-3">
           <EditableText as="h2" className="text-3xl font-display" value={slots.headline ?? ""} onChange={(v) => onSlotChange("headline", v)} placeholder="ჰერო სათაური" />
           <EditableText as="p" className="text-sm text-ink/70" value={slots.subtext ?? ""} onChange={(v) => onSlotChange("subtext", v)} placeholder="ქვესათაური" />
-          <EditableText as="span" className="inline-flex items-center rounded-xl px-4 py-2 text-xs uppercase tracking-[0.2em] text-white" value={slots.ctaPrimary?.label ?? ""} onChange={(v) => onSlotChange("ctaPrimary.label", v)} placeholder="CTA" style={{ backgroundColor: colors.primary }} />
+          <span className="inline-flex items-center rounded-xl px-4 py-2 text-xs uppercase tracking-[0.2em] text-white" style={{ backgroundColor: colors.primary }}>
+            <EditableText as="span" className="text-xs uppercase tracking-[0.2em]" value={slots.ctaPrimary?.label ?? ""} onChange={(v) => onSlotChange("ctaPrimary.label", v)} placeholder="CTA" />
+          </span>
         </div>
         <div className="rounded-2xl bg-shell border border-ink/10 h-44 flex items-center justify-center text-xs text-ink/50">{slots.imageHint ?? "სურათის იდეა"}</div>
       </div>
@@ -27,7 +29,9 @@ export const CleanMinimalTemplates: Record<string, (props: TemplateProps) => JSX
       <div className="text-center space-y-4 max-w-2xl mx-auto">
         <EditableText as="h2" className="text-4xl font-display" value={slots.headline ?? ""} onChange={(v) => onSlotChange("headline", v)} placeholder="ჰერო სათაური" />
         <EditableText as="p" className="text-sm text-ink/70" value={slots.subtext ?? ""} onChange={(v) => onSlotChange("subtext", v)} placeholder="ქვესათაური" />
-        <EditableText as="span" className="inline-flex items-center rounded-xl px-4 py-2 text-xs uppercase tracking-[0.2em] text-white" value={slots.cta?.label ?? ""} onChange={(v) => onSlotChange("cta.label", v)} placeholder="CTA" style={{ backgroundColor: colors.primary }} />
+        <span className="inline-flex items-center rounded-xl px-4 py-2 text-xs uppercase tracking-[0.2em] text-white" style={{ backgroundColor: colors.primary }}>
+          <EditableText as="span" className="text-xs uppercase tracking-[0.2em]" value={slots.cta?.label ?? ""} onChange={(v) => onSlotChange("cta.label", v)} placeholder="CTA" />
+        </span>
       </div>
     </section>
   ),

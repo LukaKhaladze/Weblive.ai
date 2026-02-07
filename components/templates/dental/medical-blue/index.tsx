@@ -17,8 +17,12 @@ export const MedicalBlueTemplates: Record<string, (props: TemplateProps) => JSX.
           <EditableText as="h2" className="text-3xl font-display" value={slots.headline ?? ""} onChange={(v) => onSlotChange("headline", v)} placeholder="ჰერო სათაური" />
           <EditableText as="p" className="text-sm text-white/80" value={slots.subtext ?? ""} onChange={(v) => onSlotChange("subtext", v)} placeholder="ქვესათაური" />
           <div className="flex gap-3">
-            <EditableText as="span" className="inline-flex items-center rounded-full bg-white text-ink px-4 py-2 text-xs uppercase tracking-[0.2em]" value={slots.ctaPrimary?.label ?? ""} onChange={(v) => onSlotChange("ctaPrimary.label", v)} placeholder="ძირითადი CTA" />
-            <EditableText as="span" className="inline-flex items-center rounded-full border border-white/40 px-4 py-2 text-xs uppercase tracking-[0.2em]" value={slots.ctaSecondary?.label ?? ""} onChange={(v) => onSlotChange("ctaSecondary.label", v)} placeholder="მეორეული CTA" />
+            <span className="inline-flex items-center rounded-full bg-white text-ink px-4 py-2 text-xs uppercase tracking-[0.2em]">
+              <EditableText as="span" className="text-xs uppercase tracking-[0.2em]" value={slots.ctaPrimary?.label ?? ""} onChange={(v) => onSlotChange("ctaPrimary.label", v)} placeholder="ძირითადი CTA" />
+            </span>
+            <span className="inline-flex items-center rounded-full border border-white/40 px-4 py-2 text-xs uppercase tracking-[0.2em]">
+              <EditableText as="span" className="text-xs uppercase tracking-[0.2em]" value={slots.ctaSecondary?.label ?? ""} onChange={(v) => onSlotChange("ctaSecondary.label", v)} placeholder="მეორეული CTA" />
+            </span>
           </div>
         </div>
         <div className="rounded-2xl bg-white/20 border border-white/30 h-56 flex items-center justify-center text-xs text-white/70">{slots.imageHint ?? "სურათის იდეა"}</div>
@@ -30,7 +34,9 @@ export const MedicalBlueTemplates: Record<string, (props: TemplateProps) => JSX.
       <div className="text-center space-y-4 max-w-2xl mx-auto">
         <EditableText as="h2" className="text-4xl font-display" value={slots.headline ?? ""} onChange={(v) => onSlotChange("headline", v)} placeholder="ჰერო სათაური" />
         <EditableText as="p" className="text-sm text-white/80" value={slots.subtext ?? ""} onChange={(v) => onSlotChange("subtext", v)} placeholder="ქვესათაური" />
-        <EditableText as="span" className="inline-flex items-center rounded-full bg-white text-ink px-4 py-2 text-xs uppercase tracking-[0.2em]" value={slots.cta?.label ?? ""} onChange={(v) => onSlotChange("cta.label", v)} placeholder="CTA" />
+        <span className="inline-flex items-center rounded-full bg-white text-ink px-4 py-2 text-xs uppercase tracking-[0.2em]">
+          <EditableText as="span" className="text-xs uppercase tracking-[0.2em]" value={slots.cta?.label ?? ""} onChange={(v) => onSlotChange("cta.label", v)} placeholder="CTA" />
+        </span>
         <div className="mt-6 rounded-2xl bg-white/20 border border-white/30 h-44 flex items-center justify-center text-xs text-white/70">{slots.backgroundImageHint ?? "ფონის სურათი"}</div>
       </div>
     </section>
