@@ -35,7 +35,9 @@ export default function EditableText({
       suppressContentEditableWarning
       className={className}
       data-placeholder={placeholder}
-      onBlur={(event) => onChange(event.currentTarget.innerText.trim())}
+      onBlur={(event: React.FocusEvent<HTMLElement>) =>
+        onChange(event.currentTarget.innerText.trim())
+      }
     />
   );
 }
