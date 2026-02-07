@@ -139,6 +139,7 @@ export type WidgetType =
   | "Services"
   | "WhyUs"
   | "Stats"
+  | "FeaturedGrid"
   | "Testimonials"
   | "Pricing"
   | "FAQ"

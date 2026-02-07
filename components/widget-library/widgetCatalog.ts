@@ -9,7 +9,6 @@ export type WidgetCatalogItem = {
   tags: string[];
   previewPropsKa?: Record<string, unknown>;
   previewPropsEn?: Record<string, unknown>;
-  previewImage?: string;
   defaultProps?: Record<string, unknown>;
   isCustom?: boolean;
 };
@@ -78,6 +77,31 @@ export function getWidgetPreviewProps(
 ) {
   const data = previewData[language];
   switch (widgetType) {
+    case "FeaturedGrid":
+      return {
+        headingEyebrow: language === "ka" ? "რჩეული კატეგორიები" : "Featured categories",
+        heading: language === "ka" ? "დაიწყე ყველაზე პოპულარულით" : "Start with popular picks",
+        subheading:
+          language === "ka"
+            ? "დიდი ბლოკი მარცხნივ და პატარა ბლოკები მარჯვნივ."
+            : "Big tile on the left and smaller tiles on the right.",
+        items:
+          language === "ka"
+            ? [
+                { title: "ესტეთიკა", imageHint: "დიდი ფოტო", isPrimary: true },
+                { title: "იმპლანტაცია", imageHint: "მცირე ფოტო" },
+                { title: "ორთოდონტია", imageHint: "მცირე ფოტო" },
+                { title: "ჰიგიენა", imageHint: "მცირე ფოტო" },
+                { title: "ბავშვები", imageHint: "მცირე ფოტო" }
+              ]
+            : [
+                { title: "Aesthetics", imageHint: "Large image", isPrimary: true },
+                { title: "Implants", imageHint: "Small image" },
+                { title: "Orthodontics", imageHint: "Small image" },
+                { title: "Hygiene", imageHint: "Small image" },
+                { title: "Kids", imageHint: "Small image" }
+              ]
+      };
     case "Header":
       return {
         brand: language === "ka" ? "სტომატოლოგია" : "Dental Clinic",

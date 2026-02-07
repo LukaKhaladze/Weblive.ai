@@ -364,6 +364,67 @@ export function ServicesCards6({ props, theme, onPropChange }: WidgetComponentPr
   );
 }
 
+export function FeaturedGrid({ props, theme, onPropChange }: WidgetComponentProps) {
+  const items = getArray<{ title?: string; imageHint?: string; href?: string; isPrimary?: boolean }>(
+    props.items,
+    []
+  );
+  return (
+    <section className="rounded-3xl border border-ink/10 bg-white p-8 space-y-4">
+      <div className="space-y-2">
+        <EditableText
+          as="span"
+          className="text-xs uppercase tracking-[0.2em] text-ink/50"
+          value={getString(props.headingEyebrow)}
+          onChange={(value) => onPropChange("headingEyebrow", value)}
+          placeholder="Eyebrow"
+        />
+        <EditableText
+          as="h3"
+          className="text-2xl font-semibold"
+          value={getString(props.heading)}
+          onChange={(value) => onPropChange("heading", value)}
+          placeholder="Heading"
+        />
+        <EditableText
+          as="p"
+          className="text-sm text-ink/70"
+          value={getString(props.subheading)}
+          onChange={(value) => onPropChange("subheading", value)}
+          placeholder="Subheading"
+        />
+      </div>
+      <div className="grid gap-4 md:grid-cols-[1.2fr_1fr]">
+        <div className="rounded-2xl border border-dashed border-ink/20 bg-shell/60 h-48 flex items-center justify-center text-xs text-ink/50">
+          {items[0]?.imageHint ?? "Primary image"}
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {items.slice(1, 5).map((item, index) => (
+            <div
+              key={index}
+              className="rounded-2xl border border-ink/10 bg-white p-3"
+            >
+              <div
+                className="h-16 rounded-xl border border-dashed border-ink/20 bg-shell/50 mb-2"
+              />
+              <EditableText
+                as="span"
+                className="text-sm font-medium"
+                value={getString(item.title)}
+                onChange={(value) => {
+                  const next = [...items];
+                  next[index + 1] = { ...next[index + 1], title: value };
+                  onPropChange("items", next);
+                }}
+                placeholder="Item"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 export function ServicesIconRow({ props, theme, onPropChange }: WidgetComponentProps) {
   const items = getArray<string>(props.items, []);
   return (
@@ -867,9 +928,11 @@ export function FooterSimple({ props, onPropChange }: WidgetComponentProps) {
 export function CustomWidgetPlaceholder({ props }: WidgetComponentProps) {
   const name = getString(props.name, "Custom widget");
   const image = typeof props.imageDataUrl === "string" ? props.imageDataUrl : "";
+  const prompt = getString(props.promptText);
   return (
     <section className="rounded-3xl border border-dashed border-ink/30 bg-shell/60 p-6 text-center text-sm text-ink/60 space-y-3">
       <p className="font-medium">Custom widget: {name} (placeholder)</p>
+      {prompt ? <p className="text-xs text-ink/50">{prompt}</p> : null}
       {image ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -933,6 +996,9 @@ export const WIDGET_COMPONENTS = {
   Footer: {
     columns: FooterColumns,
     simple: FooterSimple
+  },
+  FeaturedGrid: {
+    bigLeft_4Right: FeaturedGrid
   },
   CustomWidgetPlaceholder: {
     image: CustomWidgetPlaceholder

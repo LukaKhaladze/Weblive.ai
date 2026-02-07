@@ -8,7 +8,7 @@ import {
   WidgetCatalogItem
 } from "@/components/widget-library/widgetCatalog";
 import { WidgetType } from "@/lib/types";
-import CreateWidgetFromImageModal from "@/components/widget-library/CreateWidgetFromImageModal";
+import CreateWidgetFromPromptModal from "@/components/widget-library/CreateWidgetFromPromptModal";
 import {
   loadCustomWidgetCatalog,
   upsertCustomWidget
@@ -128,13 +128,10 @@ export default function WidgetLibraryModal({
                     <div className="absolute left-2 top-2 text-[9px] uppercase tracking-[0.2em] text-ink/40">
                       Preview
                     </div>
-                    {widget.isCustom && widget.previewImage ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={widget.previewImage}
-                        alt={widget.title}
-                        className="h-full w-full object-cover"
-                      />
+                    {widget.isCustom && (!previewProps || widget.widgetType === "CustomWidgetPlaceholder") ? (
+                      <div className="h-full w-full flex items-center justify-center text-xs text-ink/50 px-4 text-center">
+                        Custom widget: {widget.title}
+                      </div>
                     ) : (
                       <div className="pointer-events-none origin-top-left scale-[0.6] p-3">
                         <WidgetSection
@@ -142,7 +139,7 @@ export default function WidgetLibraryModal({
                             id: `preview-${widget.id}`,
                             widgetType: widget.widgetType as WidgetType,
                             variant: widget.variant,
-                            props: previewProps ?? {},
+                            props: (widget.defaultProps ?? previewProps) ?? {},
                             createdAt: new Date().toISOString()
                           }}
                           theme={{
@@ -179,7 +176,7 @@ export default function WidgetLibraryModal({
                       onInsert(
                         widget.widgetType as WidgetType,
                         widget.variant,
-                        (widget.defaultProps ?? previewProps) as Record<string, unknown>
+                        (widget.defaultProps ?? previewProps ?? {}) as Record<string, unknown>
                       )
                     }
                   >
@@ -193,6 +190,7 @@ export default function WidgetLibraryModal({
       </div>
 
       <CreateWidgetFromImageModal
+      <CreateWidgetFromPromptModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onCreate={(item) => {
@@ -200,6 +198,8 @@ export default function WidgetLibraryModal({
           setCustomWidgets(updated);
           setIsCreateOpen(false);
         }}
+        language={language}
+        theme={{ primaryColor: theme.primaryColor, secondaryColor: theme.secondaryColor }}
       />
     </div>
   );
