@@ -19,14 +19,14 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
   const renderNavItem = (item: { label: string; href: string }) => {
     if (editable) {
       return (
-        <span key={item.href} className="text-sm text-slate-600">
+        <span key={item.href} className="max-w-[140px] truncate text-sm text-slate-600">
           {item.label}
         </span>
       );
     }
     return (
       <Link key={item.href} href={item.href}>
-        {item.label}
+        <span className="max-w-[140px] truncate">{item.label}</span>
       </Link>
     );
   };
@@ -55,7 +55,7 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
             <span className="font-semibold text-lg tracking-tight">{props.brand}</span>
           )}
         </div>
-        <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
+        <nav className="hidden max-w-[60%] flex-wrap items-center gap-4 text-sm text-slate-600 md:flex">
           {props.nav.map(renderNavItem)}
         </nav>
         {editable ? (

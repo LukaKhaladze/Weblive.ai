@@ -399,8 +399,8 @@ export default function EditorShell({
                       toolbar={
                         isSelected ? (
                           <div className="border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-600">
-                            <div className="flex flex-wrap items-center gap-3">
-                              <label className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-3 overflow-x-auto">
+                              <label className="flex items-center gap-2 whitespace-nowrap">
                                 ფონი
                                 <input
                                   type="color"
@@ -431,7 +431,7 @@ export default function EditorShell({
                                   გამორთვა
                                 </button>
                               </label>
-                              <label className="flex items-center gap-2">
+                              <label className="flex items-center gap-2 whitespace-nowrap">
                                 შიდა დაშორება
                                 <select
                                   className="rounded-full border border-slate-200 bg-white px-2 py-1"
@@ -451,7 +451,7 @@ export default function EditorShell({
                                   <option value="lg">ფართო</option>
                                 </select>
                               </label>
-                              <label className="flex items-center gap-2">
+                              <label className="flex items-center gap-2 whitespace-nowrap">
                                 ტექსტის განლაგება
                                 <select
                                   className="rounded-full border border-slate-200 bg-white px-2 py-1"
@@ -470,7 +470,7 @@ export default function EditorShell({
                                   <option value="center">ცენტრში</option>
                                 </select>
                               </label>
-                              <label className="flex items-center gap-2">
+                              <label className="flex items-center gap-2 whitespace-nowrap">
                                 სიგანე
                                 <select
                                   className="rounded-full border border-slate-200 bg-white px-2 py-1"
@@ -489,7 +489,7 @@ export default function EditorShell({
                                   <option value="full">სრული</option>
                                 </select>
                               </label>
-                              <label className="flex items-center gap-2">
+                              <label className="flex items-center gap-2 whitespace-nowrap">
                                 დამალვა
                                 <input
                                   type="checkbox"

@@ -151,7 +151,7 @@ export default function BuildPage() {
             <div className="mt-6">
               <label className="text-sm text-white/70">ბიზნესის დასახელება</label>
               <input
-                className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3"
+                className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                 value={input.businessName}
                 onChange={(event) => setInput({ ...input, businessName: event.target.value })}
               />
@@ -187,7 +187,7 @@ export default function BuildPage() {
             <div className="mt-6">
               <label className="text-sm text-white/70">მოკლე აღწერა</label>
               <textarea
-                className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3"
+                className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                 rows={4}
                 value={input.description}
                 onChange={(event) => setInput({ ...input, description: event.target.value })}
@@ -287,7 +287,7 @@ export default function BuildPage() {
               <label className="text-sm text-white/70">
                 ტელეფონი
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3"
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.contact.phone}
                   onChange={(event) =>
                     setInput({
@@ -300,7 +300,7 @@ export default function BuildPage() {
               <label className="text-sm text-white/70">
                 ელ. ფოსტა
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3"
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.contact.email}
                   onChange={(event) =>
                     setInput({
@@ -313,7 +313,7 @@ export default function BuildPage() {
               <label className="text-sm text-white/70">
                 მისამართი
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3"
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.contact.address}
                   onChange={(event) =>
                     setInput({
@@ -326,7 +326,7 @@ export default function BuildPage() {
               <label className="text-sm text-white/70">
                 სამუშაო საათები
                 <input
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3"
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
                   value={input.contact.hours}
                   onChange={(event) =>
                     setInput({
