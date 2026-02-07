@@ -116,7 +116,20 @@ export type GeneratorInputs = {
   logoDataUrl?: string;
   designVariationSeed: string;
   version: number;
-  packId: "dental_medical_blue" | "dental_clean_minimal";
+  styleReferences?: Array<{
+    id: string;
+    referenceType:
+      | "General"
+      | "Hero"
+      | "Services"
+      | "About"
+      | "Testimonials"
+      | "Pricing"
+      | "FAQ"
+      | "CTA"
+      | "Footer";
+    dataUrl: string;
+  }>;
 };
 
 export type WidgetCategory =
@@ -182,6 +195,16 @@ export type PageBlueprint = {
     primaryColor: string;
     secondaryColor: string;
     logoDataUrl?: string;
+  };
+  styleTokens?: {
+    radius?: "md" | "lg" | "xl";
+    shadow?: "none" | "soft" | "medium";
+    border?: "none" | "thin";
+    spacing?: "compact" | "normal" | "airy";
+    typography?: "clean" | "bold" | "premium";
+    heroStyle?: "split" | "centered" | "overlay";
+    cardStyle?: "bordered" | "shadowed";
+    sectionBg?: "white" | "alt" | "dark";
   };
   widgets: WidgetInstance[];
 };

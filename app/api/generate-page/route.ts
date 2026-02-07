@@ -45,6 +45,9 @@ function allowedList() {
 }
 
 function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
+  const referenceSummary = (inputs.styleReferences ?? [])
+    .map((ref, index) => `#${index + 1} ${ref.referenceType}`)
+    .join(", ");
   const lines = [
     "You are a senior UX writer and UI planner. Output ONLY valid JSON.",
     "",
@@ -56,6 +59,9 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     "- Generate widgets ONLY for the selected target page (single page).",
     "- Use realistic content for the business category.",
     "- Apply primary/secondary colors in CTA labels and accents.",
+    "- Analyze the uploaded style reference images to extract layout and styling patterns.",
+    "- Convert extracted style into a Style Tokens object (radius, shadow, border, spacing, typography, heroStyle, cardStyle, sectionBg).",
+    "- Use styleTokens to choose widget variants and props.",
     "- Keep output compact and practical.",
     strict
       ? "- Output must be strictly valid JSON. If you cannot comply, output an empty JSON object: {}"
@@ -71,11 +77,22 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     "{",
     '  "page": { "slug": string, "title": string },',
     '  "theme": { "primaryColor": string, "secondaryColor": string, "logoDataUrl"?: string },',
+    '  "styleTokens": {',
+    '    "radius": "md|lg|xl",',
+    '    "shadow": "none|soft|medium",',
+    '    "border": "none|thin",',
+    '    "spacing": "compact|normal|airy",',
+    '    "typography": "clean|bold|premium",',
+    '    "heroStyle": "split|centered|overlay",',
+    '    "cardStyle": "bordered|shadowed",',
+    '    "sectionBg": "white|alt|dark"',
+    "  },",
     '  "widgets": [',
     "    {",
     '      "widgetType": string,',
     '      "variant": string,',
     '      "props": object',
+    '      "uiTokens"?: object',
     "    }",
     "  ]",
     "}",
@@ -101,17 +118,23 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     `Primary color: ${inputs.primaryColor}`,
     `Secondary color: ${inputs.secondaryColor}`,
     `Design variation seed: ${inputs.designVariationSeed}`,
-    `User prompt: ${inputs.prompt}`
+    `User prompt: ${inputs.prompt}`,
+    `Style references: ${referenceSummary || "None"}`
   );
 
   return lines.filter(Boolean).join("\n");
 }
 
-async function callOpenAI(prompt: string) {
+async function callOpenAI(prompt: string, inputs: GeneratorInputs) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("Missing OPENAI_API_KEY environment variable.");
   }
+
+  const images = (inputs.styleReferences ?? []).map((ref) => ({
+    type: "image_url",
+    image_url: { url: ref.dataUrl }
+  }));
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -125,7 +148,10 @@ async function callOpenAI(prompt: string) {
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: "You output only JSON." },
-        { role: "user", content: prompt }
+        {
+          role: "user",
+          content: [{ type: "text", text: prompt }, ...images]
+        }
       ]
     })
   });
@@ -177,6 +203,7 @@ function normalizePageBlueprint(inputs: GeneratorInputs, raw: any): PageBlueprin
       secondaryColor: inputs.secondaryColor,
       logoDataUrl: inputs.logoDataUrl
     },
+    styleTokens: raw?.styleTokens ?? undefined,
     widgets
   };
 }
@@ -190,14 +217,14 @@ export async function POST(request: NextRequest) {
 
   const prompt = buildPrompt(body, false);
   try {
-    const raw = await callOpenAI(prompt);
+    const raw = await callOpenAI(prompt, body);
     const parsed = safeParse(raw);
     const pageBlueprint = normalizePageBlueprint(body, parsed ?? {});
     return NextResponse.json(pageBlueprint);
   } catch (error) {
     const strictPrompt = buildPrompt(body, true);
     try {
-      const raw = await callOpenAI(strictPrompt);
+      const raw = await callOpenAI(strictPrompt, body);
       const parsed = safeParse(raw);
       const pageBlueprint = normalizePageBlueprint(body, parsed ?? {});
       return NextResponse.json(pageBlueprint);

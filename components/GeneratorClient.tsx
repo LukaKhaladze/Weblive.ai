@@ -12,7 +12,6 @@ import {
   Project,
   WidgetInstance
 } from "@/lib/types";
-import { DENTAL_PACKS } from "@/lib/packs/dentalPacks";
 import {
   getProjectById,
   loadProjects,
@@ -96,7 +95,7 @@ const defaultInputs: GeneratorInputs = {
   logoDataUrl: undefined,
   designVariationSeed: "",
   version: 1,
-  packId: "dental_medical_blue"
+  styleReferences: []
 };
 
 const createSeed = () => Math.random().toString(36).slice(2, 8);
@@ -346,6 +345,8 @@ export default function GeneratorClient() {
             widgetType: widget.widgetType,
             variant: widget.variant
           })),
+          styleReferences: inputs.styleReferences ?? [],
+          styleTokens: currentPage.styleTokens ?? null,
           userPrompt: prompt
         })
       });
@@ -370,6 +371,29 @@ export default function GeneratorClient() {
     secondaryColor: inputs.secondaryColor,
     logoDataUrl: inputs.logoDataUrl
   };
+  const styleTokens = currentPage?.styleTokens;
+
+  const styleTokenClasses = useMemo(() => {
+    const spacing =
+      styleTokens?.spacing === "compact"
+        ? "space-y-4"
+        : styleTokens?.spacing === "airy"
+          ? "space-y-10"
+          : "space-y-6";
+    const typography =
+      styleTokens?.typography === "bold"
+        ? "tracking-tight"
+        : styleTokens?.typography === "premium"
+          ? "font-display"
+          : "";
+    const sectionBg =
+      styleTokens?.sectionBg === "dark"
+        ? "bg-ink/90 text-white"
+        : styleTokens?.sectionBg === "alt"
+          ? "bg-shell"
+          : "";
+    return `${spacing} ${typography} ${sectionBg}`;
+  }, [styleTokens]);
 
   return (
     <div className="min-h-screen">
@@ -714,28 +738,101 @@ export default function GeneratorClient() {
 
             <div>
               <label className="text-sm font-medium text-ink/70">
-                დიზაინის პაკეტი
+                სტილის მაგალითები (სურათები)
               </label>
-              <select
-                className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2"
-                value={inputs.packId}
+              <p className="text-xs text-ink/50">
+                ატვირთეთ 1–5 დიზაინის მაგალითი. AI გამოიყენებს სტრუქტურასა და სტილს თქვენი გვერდის უნიკალური დიზაინისთვის.
+              </p>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                multiple
+                className="mt-2 w-full rounded-xl border border-ink/10 px-3 py-2 text-sm"
                 onChange={(event) => {
-                  const packId = event.target.value as GeneratorInputs["packId"];
-                  const pack = DENTAL_PACKS.find((p) => p.packId === packId);
-                  setInputs((prev) => ({
-                    ...prev,
-                    packId,
-                    primaryColor: pack?.tokens.primaryColorDefault ?? prev.primaryColor,
-                    secondaryColor: pack?.tokens.secondaryColorDefault ?? prev.secondaryColor
-                  }));
+                  const files = Array.from(event.target.files ?? []).slice(0, 5);
+                  files.forEach((file) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      if (typeof reader.result !== "string") return;
+                      setInputs((prev) => ({
+                        ...prev,
+                        styleReferences: [
+                          ...(prev.styleReferences ?? []),
+                          {
+                            id: crypto.randomUUID(),
+                            referenceType: "General",
+                            dataUrl: reader.result
+                          }
+                        ].slice(0, 5)
+                      }));
+                    };
+                    reader.readAsDataURL(file);
+                  });
                 }}
-              >
-                {DENTAL_PACKS.map((pack) => (
-                  <option key={pack.packId} value={pack.packId}>
-                    {pack.name}
-                  </option>
+              />
+              <div className="mt-3 space-y-3">
+                {(inputs.styleReferences ?? []).map((ref, index) => (
+                  <div key={ref.id} className="flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={ref.dataUrl}
+                      alt={`Reference ${index + 1}`}
+                      className="h-12 w-12 rounded-xl object-cover border border-ink/10"
+                    />
+                    <select
+                      className="rounded-xl border border-ink/10 px-3 py-2 text-xs"
+                      value={ref.referenceType}
+                      onChange={(event) => {
+                        const referenceType = event.target.value as
+                          | "General"
+                          | "Hero"
+                          | "Services"
+                          | "About"
+                          | "Testimonials"
+                          | "Pricing"
+                          | "FAQ"
+                          | "CTA"
+                          | "Footer";
+                        setInputs((prev) => ({
+                          ...prev,
+                          styleReferences: (prev.styleReferences ?? []).map((item) =>
+                            item.id === ref.id ? { ...item, referenceType } : item
+                          )
+                        }));
+                      }}
+                    >
+                      {[
+                        "General",
+                        "Hero",
+                        "Services",
+                        "About",
+                        "Testimonials",
+                        "Pricing",
+                        "FAQ",
+                        "CTA",
+                        "Footer"
+                      ].map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      className="text-xs text-red-500"
+                      onClick={() =>
+                        setInputs((prev) => ({
+                          ...prev,
+                          styleReferences: (prev.styleReferences ?? []).filter(
+                            (item) => item.id !== ref.id
+                          )
+                        }))
+                      }
+                    >
+                      Remove
+                    </button>
+                  </div>
                 ))}
-              </select>
+              </div>
             </div>
 
             <div>
@@ -866,9 +963,9 @@ export default function GeneratorClient() {
             </div>
           </div>
 
-          <div className="space-y-6">
-            {currentPage?.widgets?.length ? (
-              currentPage.widgets.map((widget, index) => (
+            <div className={`space-y-6 ${styleTokenClasses}`}>
+              {currentPage?.widgets?.length ? (
+                currentPage.widgets.map((widget, index) => (
                 <div
                   key={widget.id}
                   data-widget-id={widget.id}

@@ -8,6 +8,8 @@ type AddWidgetPayload = {
   inputs: GeneratorInputs;
   targetPage: string;
   widgets: Array<{ widgetType: string; variant: string }>;
+  styleReferences?: GeneratorInputs["styleReferences"];
+  styleTokens?: Record<string, unknown> | null;
   userPrompt: string;
 };
 
@@ -19,6 +21,9 @@ function allowedList() {
 
 function buildPrompt(payload: AddWidgetPayload, strict: boolean) {
   const { inputs, userPrompt, widgets, targetPage } = payload;
+  const referenceSummary = (payload.styleReferences ?? [])
+    .map((ref, index) => `#${index + 1} ${ref.referenceType}`)
+    .join(", ");
   const lines = [
     "You are a senior UX planner. Output ONLY valid JSON.",
     "",
@@ -28,6 +33,8 @@ function buildPrompt(payload: AddWidgetPayload, strict: boolean) {
     "- Match the language of the project (ka or en).",
     "- Keep content realistic for the business category.",
     "- The widget must visually match the theme colors.",
+    "- If styleTokens are provided, reuse them to keep the widget consistent.",
+    "- Otherwise, infer styleTokens from the uploaded style reference images.",
     strict
       ? "- Output must be strictly valid JSON. If you cannot comply, output an empty JSON object: {}"
       : ""
@@ -58,17 +65,24 @@ function buildPrompt(payload: AddWidgetPayload, strict: boolean) {
     `Primary color: ${inputs.primaryColor}`,
     `Secondary color: ${inputs.secondaryColor}`,
     `User prompt: ${userPrompt}`,
-    `Existing widgets: ${widgets.map((w) => `${w.widgetType}:${w.variant}`).join(", ")}`
+    `Existing widgets: ${widgets.map((w) => `${w.widgetType}:${w.variant}`).join(", ")}`,
+    `Style references: ${referenceSummary || "None"}`,
+    `Style tokens (if any): ${payload.styleTokens ? JSON.stringify(payload.styleTokens) : "None"}`
   );
 
   return lines.filter(Boolean).join("\n");
 }
 
-async function callOpenAI(prompt: string) {
+async function callOpenAI(prompt: string, payload: AddWidgetPayload) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("Missing OPENAI_API_KEY environment variable.");
   }
+
+  const images = (payload.styleReferences ?? []).map((ref) => ({
+    type: "image_url",
+    image_url: { url: ref.dataUrl }
+  }));
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -82,7 +96,10 @@ async function callOpenAI(prompt: string) {
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: "You output only JSON." },
-        { role: "user", content: prompt }
+        {
+          role: "user",
+          content: [{ type: "text", text: prompt }, ...images]
+        }
       ]
     })
   });
@@ -130,14 +147,14 @@ export async function POST(request: NextRequest) {
 
   const prompt = buildPrompt(payload, false);
   try {
-    const raw = await callOpenAI(prompt);
+    const raw = await callOpenAI(prompt, payload);
     const parsed = safeParse(raw);
     const widget = normalizeWidget(parsed?.widget);
     return NextResponse.json({ widget, insertAfterId: parsed?.insertAfterId });
   } catch (error) {
     const strictPrompt = buildPrompt(payload, true);
     try {
-      const raw = await callOpenAI(strictPrompt);
+      const raw = await callOpenAI(strictPrompt, payload);
       const parsed = safeParse(raw);
       const widget = normalizeWidget(parsed?.widget);
       return NextResponse.json({ widget, insertAfterId: parsed?.insertAfterId });
