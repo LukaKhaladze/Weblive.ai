@@ -51,7 +51,6 @@ type TemplatePageProps = {
 
 export default function TemplatePage({
   blueprint,
-  targetPage,
   primaryColor,
   secondaryColor,
   logoDataUrl,
@@ -108,6 +107,11 @@ export default function TemplatePage({
                   secondaryColor,
                   onUpdateSlots
                 })}
+                {section.referenceMatch && section.referenceNotes ? (
+                  <p className="mt-2 text-xs text-ink/50">
+                    Inspired by: {section.referenceNotes}
+                  </p>
+                ) : null}
               </SortableSection>
             ))}
           </div>

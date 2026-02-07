@@ -107,7 +107,8 @@ const defaultInputs: GeneratorInputs = {
   secondaryColor: "#28a745",
   logoDataUrl: undefined,
   designVariationSeed: "",
-  version: 1
+  version: 1,
+  designReferences: []
 };
 
 const defaultFormFields = {
@@ -974,6 +975,61 @@ export default function GeneratorClient() {
                   className="mt-2 h-12 w-12 rounded-xl object-contain border border-ink/10 bg-white"
                 />
               ) : null}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-ink/70">
+                Design References (Upload images)
+              </label>
+              <p className="text-xs text-ink/50">Upload design examples you like</p>
+              <input
+                type="file"
+                accept="image/png,image/jpeg"
+                multiple
+                className="mt-2 w-full rounded-xl border border-ink/10 px-3 py-2 text-sm"
+                onChange={(event) => {
+                  const files = Array.from(event.target.files ?? []);
+                  if (files.length === 0) return;
+                  const limited = files.slice(0, 5 - inputs.designReferences.length);
+                  limited.forEach((file) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      if (typeof reader.result !== "string") return;
+                      setInputs((prev) => ({
+                        ...prev,
+                        designReferences: [...prev.designReferences, reader.result].slice(0, 5)
+                      }));
+                    };
+                    reader.readAsDataURL(file);
+                  });
+                  event.currentTarget.value = "";
+                }}
+              />
+              {inputs.designReferences.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {inputs.designReferences.map((src, index) => (
+                    <div key={`ref-${index}`} className="relative">
+                      <img
+                        src={src}
+                        alt={`Reference ${index + 1}`}
+                        className="h-14 w-20 rounded-lg object-cover border border-ink/10"
+                      />
+                      <button
+                        type="button"
+                        className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-ink text-white text-xs"
+                        onClick={() =>
+                          setInputs((prev) => ({
+                            ...prev,
+                            designReferences: prev.designReferences.filter((_, i) => i !== index)
+                          }))
+                        }
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div>

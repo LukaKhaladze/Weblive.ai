@@ -36,6 +36,9 @@ function validateInputs(body: GeneratorInputs) {
   if (!body.targetPage?.trim()) return "Target page is required.";
   if (!body.primaryColor?.trim()) return "Primary color is required.";
   if (!body.secondaryColor?.trim()) return "Secondary color is required.";
+  if (body.designReferences && body.designReferences.length > 5) {
+    return "Too many design references.";
+  }
   return null;
 }
 
@@ -68,6 +71,9 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     "- Change layouts based on the design variation seed: hero layout (centered vs split vs image-first vs text-first), number of service cards (3–6), testimonials layout (slider vs grid vs quotes), FAQ style (accordion vs list), section order where possible, and button placement.",
     "- Apply the chosen primary and secondary colors consistently across layout components.",
     "- For category Dental Clinic: choose templateId from the provided catalog for each section and fill slots accordingly. Use the seed to vary hero/services templates.",
+    "- If reference images are provided, extract their section order and layout logic, then select templateIds that match those structures.",
+    "- Add referenceMatch=true and referenceNotes per section when it follows a specific reference image.",
+    "- Keep overall section order inspired by reference images; only vary layout details on regenerate.",
     "- Choose ONE layout archetype and design accordingly:",
     "- A) Modern SaaS-style (clean hero, split layout, big typography)",
     "- B) Luxury/Clinic-style (large hero image, softer spacing, premium look)",
@@ -123,6 +129,8 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
       '          "type": "hero" | "trust_strip" | "about" | "services" | "why_us" | "testimonials" | "faq" | "contact",',
       '          "templateId": string,',
       '          "slots": object,',
+      '          "referenceMatch": boolean,',
+      '          "referenceNotes": string,',
       '          "heading": string,',
       '          "content": string,',
     '          "bullets": string[],',
@@ -170,13 +178,14 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     `Primary color: ${inputs.primaryColor}`,
     `Secondary color: ${inputs.secondaryColor}`,
     `Design variation seed: ${inputs.designVariationSeed}`,
+    `Reference images count: ${inputs.designReferences?.length ?? 0}`,
     `User prompt: ${inputs.prompt}`
   );
 
   return lines.join("\n");
 }
 
-async function callOpenAI(prompt: string) {
+async function callOpenAI(prompt: string, requestImages: string[]) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("Missing OPENAI_API_KEY environment variable.");
@@ -194,7 +203,16 @@ async function callOpenAI(prompt: string) {
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: "You output only JSON." },
-        { role: "user", content: prompt }
+        {
+          role: "user",
+          content: [
+            { type: "text", text: prompt },
+            ...((requestImages ?? []).map((dataUrl) => ({
+              type: "image_url",
+              image_url: { url: dataUrl }
+            })) as any)
+          ]
+        }
       ]
     })
   });
@@ -478,7 +496,13 @@ function ensureDentalTemplates(blueprint: Blueprint): Blueprint {
         }
       }
 
-      return { ...section, templateId, slots };
+      return {
+        ...section,
+        templateId,
+        slots,
+        referenceMatch: section.referenceMatch ?? false,
+        referenceNotes: section.referenceNotes ?? ""
+      };
     });
     return { ...page, sections };
   });
@@ -553,7 +577,7 @@ export async function POST(request: NextRequest) {
     }
 
     const initialPrompt = buildPrompt(body, false);
-    let raw = await callOpenAI(initialPrompt);
+    let raw = await callOpenAI(initialPrompt, body.designReferences ?? []);
     try {
       const blueprint = applyThemeColors(
         ensureDentalTemplates(withFallbackUI(parseBlueprint(raw), body.targetPage)),
@@ -563,7 +587,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(blueprint);
     } catch {
       const strictPrompt = buildPrompt(body, true);
-      raw = await callOpenAI(strictPrompt);
+      raw = await callOpenAI(strictPrompt, body.designReferences ?? []);
       const blueprint = applyThemeColors(
         ensureDentalTemplates(withFallbackUI(parseBlueprint(raw), body.targetPage)),
         body.primaryColor,
