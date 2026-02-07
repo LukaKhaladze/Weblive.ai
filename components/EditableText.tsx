@@ -1,0 +1,41 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
+type EditableTextProps = {
+  value: string;
+  onChange: (value: string) => void;
+  as?: "h2" | "h3" | "p" | "span";
+  className?: string;
+  placeholder?: string;
+};
+
+export default function EditableText({
+  value,
+  onChange,
+  as = "p",
+  className,
+  placeholder
+}: EditableTextProps) {
+  const ref = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    if (ref.current.innerText !== value) {
+      ref.current.innerText = value || "";
+    }
+  }, [value]);
+
+  const Component = as as keyof JSX.IntrinsicElements;
+
+  return (
+    <Component
+      ref={ref as never}
+      contentEditable
+      suppressContentEditableWarning
+      className={className}
+      data-placeholder={placeholder}
+      onBlur={(event) => onChange(event.currentTarget.innerText.trim())}
+    />
+  );
+}
