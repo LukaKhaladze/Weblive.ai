@@ -44,6 +44,8 @@ export type Blueprint = {
     styleKeywords: string[];
     colorSuggestions: string[];
     fontSuggestions: string[];
+    primaryColor?: string;
+    secondaryColor?: string;
   };
   recommendedPages: string[];
   pages: Array<{
@@ -85,6 +87,31 @@ export type GeneratorInputs = {
   language: Language;
   prompt: string;
   targetPage: string;
+  businessType: "services" | "products" | "both";
+  industrySubcategory: string;
+  targetAudience:
+    | "მოზრდილები"
+    | "ბავშვები"
+    | "ოჯახი"
+    | "ბიზნესი/კორპორატიული"
+    | "ყველა";
+  pricePositioning: "ბიუჯეტური" | "საშუალო" | "პრემიუმი";
+  primaryGoal:
+    | "ზარები/კონსულტაცია"
+    | "ონლაინ დაჯავშნა"
+    | "პროდუქტის გაყიდვა"
+    | "ლიდების შეგროვება";
+  hasBooking: boolean;
+  hasDelivery: boolean;
+  addressArea: string;
+  workingHours: string;
+  phone: string;
+  socialLinks: string;
+  primaryColor: string;
+  secondaryColor: string;
+  logoDataUrl?: string;
+  visualVariationSeed: string;
+  version: number;
 };
 
 export type Project = {

@@ -50,6 +50,29 @@ const pageOptions = [
   "Blog"
 ];
 
+const businessTypes = [
+  { label: "სერვისები", value: "services" },
+  { label: "პროდუქტები", value: "products" },
+  { label: "ორივე", value: "both" }
+];
+
+const audienceOptions = [
+  "მოზრდილები",
+  "ბავშვები",
+  "ოჯახი",
+  "ბიზნესი/კორპორატიული",
+  "ყველა"
+];
+
+const priceOptions = ["ბიუჯეტური", "საშუალო", "პრემიუმი"];
+
+const goalOptions = [
+  "ზარები/კონსულტაცია",
+  "ონლაინ დაჯავშნა",
+  "პროდუქტის გაყიდვა",
+  "ლიდების შეგროვება"
+];
+
 const sectionOrder: SectionType[] = [
   "hero",
   "about",
@@ -67,7 +90,23 @@ const defaultInputs: GeneratorInputs = {
   tone: tones[0],
   language: "ka",
   prompt: "",
-  targetPage: pageOptions[0]
+  targetPage: pageOptions[0],
+  businessType: "services",
+  industrySubcategory: "",
+  targetAudience: "ყველა",
+  pricePositioning: "საშუალო",
+  primaryGoal: "ზარები/კონსულტაცია",
+  hasBooking: false,
+  hasDelivery: false,
+  addressArea: "",
+  workingHours: "",
+  phone: "",
+  socialLinks: "",
+  primaryColor: "#007bff",
+  secondaryColor: "#28a745",
+  logoDataUrl: undefined,
+  visualVariationSeed: "",
+  version: 1
 };
 
 const defaultFormFields = {
@@ -136,6 +175,9 @@ export default function GeneratorClient() {
   const [showGlobal, setShowGlobal] = useState(false);
   const [wireframeMode, setWireframeMode] = useState(true);
 
+  const createSeed = () =>
+    Math.random().toString(36).slice(2, 8);
+
   useEffect(() => {
     const projectId = searchParams.get("projectId");
     if (!projectId) return;
@@ -157,7 +199,7 @@ export default function GeneratorClient() {
 
   const handleInputChange = (
     key: keyof GeneratorInputs,
-    value: string
+    value: GeneratorInputs[keyof GeneratorInputs]
   ) => {
     setInputs((prev) => ({ ...prev, [key]: value }));
   };
@@ -169,12 +211,14 @@ export default function GeneratorClient() {
       setError("Please fill in business name, city, and prompt.");
       return;
     }
+    const seed = createSeed();
+    setInputs((prev) => ({ ...prev, visualVariationSeed: seed, version: 1 }));
     setIsLoading(true);
     try {
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(inputs)
+        body: JSON.stringify({ ...inputs, visualVariationSeed: seed, version: 1 })
       });
       if (!response.ok) {
         const message = await response.text();
@@ -183,6 +227,49 @@ export default function GeneratorClient() {
       const data = (await response.json()) as Blueprint;
       setBlueprint(data);
       setStatus("Blueprint generated.");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong while generating."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [inputs, canGenerate]);
+
+  const handleRegenerate = useCallback(async () => {
+    setError("");
+    setStatus("");
+    if (!canGenerate) {
+      setError("Please fill in business name, city, and prompt.");
+      return;
+    }
+    const nextVersion = inputs.version + 1;
+    const seed = createSeed();
+    setInputs((prev) => ({
+      ...prev,
+      visualVariationSeed: seed,
+      version: nextVersion
+    }));
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...inputs,
+          visualVariationSeed: seed,
+          version: nextVersion
+        })
+      });
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || "Failed to generate blueprint.");
+      }
+      const data = (await response.json()) as Blueprint;
+      setBlueprint(data);
+      setStatus(`Blueprint generated (v${nextVersion}).`);
     } catch (err) {
       setError(
         err instanceof Error
@@ -613,6 +700,247 @@ export default function GeneratorClient() {
             </div>
 
             <div>
+              <label className="text-sm font-medium text-ink/70">
+                ბიზნესის ტიპი
+              </label>
+              <select
+                className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2"
+                value={inputs.businessType}
+                onChange={(event) =>
+                  handleInputChange(
+                    "businessType",
+                    event.target.value as GeneratorInputs["businessType"]
+                  )
+                }
+              >
+                {businessTypes.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-ink/70">
+                ინდუსტრიის ქვეკატეგორია
+              </label>
+              <input
+                className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2"
+                value={inputs.industrySubcategory}
+                onChange={(event) =>
+                  handleInputChange("industrySubcategory", event.target.value)
+                }
+                placeholder="მაგალითად: ორთოდონტია"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-ink/70">
+                მიზნობრივი აუდიტორია
+              </label>
+              <select
+                className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2"
+                value={inputs.targetAudience}
+                onChange={(event) =>
+                  handleInputChange(
+                    "targetAudience",
+                    event.target.value as GeneratorInputs["targetAudience"]
+                  )
+                }
+              >
+                {audienceOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-ink/70">
+                ფასის პოზიციონირება
+              </label>
+              <select
+                className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2"
+                value={inputs.pricePositioning}
+                onChange={(event) =>
+                  handleInputChange(
+                    "pricePositioning",
+                    event.target.value as GeneratorInputs["pricePositioning"]
+                  )
+                }
+              >
+                {priceOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-ink/70">
+                ძირითადი მიზანი
+              </label>
+              <select
+                className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2"
+                value={inputs.primaryGoal}
+                onChange={(event) =>
+                  handleInputChange(
+                    "primaryGoal",
+                    event.target.value as GeneratorInputs["primaryGoal"]
+                  )
+                }
+              >
+                {goalOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid gap-2 sm:grid-cols-2">
+              <label className="flex items-center gap-2 text-sm text-ink/70">
+                <input
+                  type="checkbox"
+                  checked={inputs.hasBooking}
+                  onChange={(event) =>
+                    handleInputChange("hasBooking", event.target.checked)
+                  }
+                />
+                ონლაინ დაჯავშნა
+              </label>
+              <label className="flex items-center gap-2 text-sm text-ink/70">
+                <input
+                  type="checkbox"
+                  checked={inputs.hasDelivery}
+                  onChange={(event) =>
+                    handleInputChange("hasDelivery", event.target.checked)
+                  }
+                />
+                მიწოდება
+              </label>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-ink/70">
+                უბანი / ტერიტორია
+              </label>
+              <input
+                className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2"
+                value={inputs.addressArea}
+                onChange={(event) =>
+                  handleInputChange("addressArea", event.target.value)
+                }
+                placeholder="მაგალითად: ვაკე"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-ink/70">
+                სამუშაო საათები
+              </label>
+              <input
+                className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2"
+                value={inputs.workingHours}
+                onChange={(event) =>
+                  handleInputChange("workingHours", event.target.value)
+                }
+                placeholder="მაგალითად: ორშ-შაბ 09:00-20:00"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-ink/70">ტელეფონი</label>
+              <input
+                className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2"
+                value={inputs.phone}
+                onChange={(event) =>
+                  handleInputChange("phone", event.target.value)
+                }
+                placeholder="+995..."
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-ink/70">
+                სოციალური ბმულები (optional)
+              </label>
+              <input
+                className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2"
+                value={inputs.socialLinks}
+                onChange={(event) =>
+                  handleInputChange("socialLinks", event.target.value)
+                }
+                placeholder="instagram.com/..., facebook.com/..."
+              />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium text-ink/70">
+                  Primary color
+                </label>
+                <input
+                  type="color"
+                  className="mt-1 h-10 w-full rounded-xl border border-ink/10 px-2"
+                  value={inputs.primaryColor}
+                  onChange={(event) =>
+                    handleInputChange("primaryColor", event.target.value)
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-ink/70">
+                  Secondary color
+                </label>
+                <input
+                  type="color"
+                  className="mt-1 h-10 w-full rounded-xl border border-ink/10 px-2"
+                  value={inputs.secondaryColor}
+                  onChange={(event) =>
+                    handleInputChange("secondaryColor", event.target.value)
+                  }
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-ink/70">
+                ლოგო
+              </label>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml"
+                className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2 text-sm"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    handleInputChange(
+                      "logoDataUrl",
+                      typeof reader.result === "string" ? reader.result : ""
+                    );
+                  };
+                  reader.readAsDataURL(file);
+                }}
+              />
+              <p className="mt-1 text-xs text-ink/50">
+                Recommended: 512×512 (or SVG).
+              </p>
+              {inputs.logoDataUrl ? (
+                <img
+                  src={inputs.logoDataUrl}
+                  alt="Logo preview"
+                  className="mt-2 h-12 w-12 rounded-xl object-contain border border-ink/10 bg-white"
+                />
+              ) : null}
+            </div>
+
+            <div>
               <label className="text-sm font-medium text-ink/70">Prompt</label>
               <textarea
                 className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2 min-h-[120px]"
@@ -653,7 +981,7 @@ export default function GeneratorClient() {
               </button>
               <button
                 className="flex-1 rounded-xl border border-ink/20 py-2 font-medium"
-                onClick={handleGenerate}
+                onClick={handleRegenerate}
                 disabled={isLoading}
               >
                 Regenerate
@@ -714,6 +1042,9 @@ export default function GeneratorClient() {
                   <p className="text-xs text-ink/50">
                     Target page: {inputs.targetPage}
                   </p>
+                  <p className="text-xs text-ink/50">
+                    Version: v{inputs.version}
+                  </p>
                 </div>
                 <div className="flex flex-col gap-2 text-xs text-ink/60">
                   <label className="flex items-center gap-2">
@@ -736,7 +1067,13 @@ export default function GeneratorClient() {
               </div>
 
               {wireframeMode ? (
-                <WireframePage blueprint={blueprint} targetPage={inputs.targetPage} />
+                <WireframePage
+                  blueprint={blueprint}
+                  targetPage={inputs.targetPage}
+                  primaryColor={inputs.primaryColor}
+                  secondaryColor={inputs.secondaryColor}
+                  logoDataUrl={inputs.logoDataUrl}
+                />
               ) : pageSections.length > 0 ? (
                 <div className="space-y-5">
                   {pageSections.map((section) => renderSection(section))}

@@ -33,6 +33,8 @@ function validateInputs(body: GeneratorInputs) {
   if (!languages.includes(body.language)) return "Invalid language.";
   if (!body.prompt?.trim()) return "Prompt is required.";
   if (!body.targetPage?.trim()) return "Target page is required.";
+  if (!body.primaryColor?.trim()) return "Primary color is required.";
+  if (!body.secondaryColor?.trim()) return "Secondary color is required.";
   return null;
 }
 
@@ -43,7 +45,7 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     "Requirements:",
     "- The business is in Georgia (country).",
     "- Content must be practical for small businesses in Georgia.",
-    "- If language is ka, ALL strings must be Georgian.",
+    "- If language is ka, ALL strings must be Georgian (including section titles: სერვისები, რატომ ჩვენ, შეფასებები, ხშირად დასმული კითხვები, კონტაქტი).",
     "- If language is en, ALL strings must be English.",
     "- No markdown, no code fences, no commentary, JSON only.",
     "- Use the section order: hero, about, services, why_us, testimonials, faq, contact.",
@@ -80,7 +82,9 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     '  "theme": {',
     '    "styleKeywords": string[],',
     '    "colorSuggestions": string[],',
-    '    "fontSuggestions": string[]',
+    '    "fontSuggestions": string[],',
+    '    "primaryColor": string,',
+    '    "secondaryColor": string',
     "  },",
     '  "recommendedPages": string[],',
     '  "pages": [',
@@ -132,6 +136,20 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     `Tone: ${inputs.tone}`,
     `Language: ${inputs.language}`,
     `Target page: ${inputs.targetPage}`,
+    `Business type: ${inputs.businessType}`,
+    `Industry subcategory: ${inputs.industrySubcategory}`,
+    `Target audience: ${inputs.targetAudience}`,
+    `Price positioning: ${inputs.pricePositioning}`,
+    `Primary goal: ${inputs.primaryGoal}`,
+    `Has booking: ${inputs.hasBooking ? "yes" : "no"}`,
+    `Has delivery: ${inputs.hasDelivery ? "yes" : "no"}`,
+    `Address area: ${inputs.addressArea}`,
+    `Working hours: ${inputs.workingHours}`,
+    `Phone: ${inputs.phone}`,
+    `Social links: ${inputs.socialLinks}`,
+    `Primary color: ${inputs.primaryColor}`,
+    `Secondary color: ${inputs.secondaryColor}`,
+    `Visual variation seed: ${inputs.visualVariationSeed}`,
     `User prompt: ${inputs.prompt}`
   );
 
@@ -243,6 +261,29 @@ function withFallbackUI(
   return { ...blueprint, pages };
 }
 
+function applyThemeColors(
+  blueprint: Blueprint,
+  primaryColor: string,
+  secondaryColor: string
+): Blueprint {
+  const colorSuggestions = [
+    primaryColor,
+    secondaryColor,
+    ...blueprint.theme.colorSuggestions.filter(
+      (color) => color !== primaryColor && color !== secondaryColor
+    )
+  ];
+  return {
+    ...blueprint,
+    theme: {
+      ...blueprint.theme,
+      primaryColor,
+      secondaryColor,
+      colorSuggestions
+    }
+  };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as GeneratorInputs;
@@ -254,12 +295,20 @@ export async function POST(request: NextRequest) {
     const initialPrompt = buildPrompt(body, false);
     let raw = await callOpenAI(initialPrompt);
     try {
-      const blueprint = withFallbackUI(parseBlueprint(raw), body.targetPage);
+      const blueprint = applyThemeColors(
+        withFallbackUI(parseBlueprint(raw), body.targetPage),
+        body.primaryColor,
+        body.secondaryColor
+      );
       return NextResponse.json(blueprint);
     } catch {
       const strictPrompt = buildPrompt(body, true);
       raw = await callOpenAI(strictPrompt);
-      const blueprint = withFallbackUI(parseBlueprint(raw), body.targetPage);
+      const blueprint = applyThemeColors(
+        withFallbackUI(parseBlueprint(raw), body.targetPage),
+        body.primaryColor,
+        body.secondaryColor
+      );
       return NextResponse.json(blueprint);
     }
   } catch (err) {
