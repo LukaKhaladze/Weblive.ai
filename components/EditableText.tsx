@@ -26,11 +26,11 @@ export default function EditableText({
     }
   }, [value]);
 
-  const Component = as as keyof JSX.IntrinsicElements;
+  const Component = as as React.ElementType;
 
   return (
     <Component
-      ref={ref as never}
+      ref={ref as unknown as React.RefObject<HTMLElement>}
       contentEditable
       suppressContentEditableWarning
       className={className}
