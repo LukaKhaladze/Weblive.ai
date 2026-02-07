@@ -22,9 +22,19 @@ export type Blueprint = {
     colorSuggestions: string[];
     fontSuggestions: string[];
   };
+  recommendedPages: string[];
   pages: Array<{
     slug: "home";
     title: string;
+    design: {
+      visualStyle: string;
+      layoutNotes: string;
+      spacing: string;
+      palette: string[];
+      typography: string[];
+      imagery: string[];
+      components: string[];
+    };
     sections: Array<{
       type: SectionType;
       heading: string;
@@ -50,6 +60,7 @@ export type GeneratorInputs = {
   tone: string;
   language: Language;
   prompt: string;
+  targetPage: string;
 };
 
 export type Project = {

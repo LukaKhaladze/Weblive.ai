@@ -10,6 +10,12 @@ export function blueprintToMarkdown(blueprint: Blueprint) {
   lines.push(`Language: ${blueprint.site.language}`);
   lines.push("");
 
+  if (blueprint.recommendedPages?.length) {
+    lines.push("## Recommended Pages");
+    blueprint.recommendedPages.forEach((page) => lines.push(`- ${page}`));
+    lines.push("");
+  }
+
   lines.push("## SEO");
   lines.push(`Meta Title: ${blueprint.seo.metaTitle}`);
   lines.push(`Meta Description: ${blueprint.seo.metaDescription}`);
@@ -18,6 +24,15 @@ export function blueprintToMarkdown(blueprint: Blueprint) {
 
   const page = blueprint.pages[0];
   lines.push(`## Page: ${page.title}`);
+  lines.push("");
+  lines.push("### Design");
+  lines.push(`Visual style: ${page.design.visualStyle}`);
+  lines.push(`Layout notes: ${page.design.layoutNotes}`);
+  lines.push(`Spacing: ${page.design.spacing}`);
+  lines.push(`Palette: ${page.design.palette.join(", ")}`);
+  lines.push(`Typography: ${page.design.typography.join(", ")}`);
+  lines.push(`Imagery: ${page.design.imagery.join(", ")}`);
+  lines.push(`Components: ${page.design.components.join(", ")}`);
   lines.push("");
 
   page.sections.forEach((section) => {

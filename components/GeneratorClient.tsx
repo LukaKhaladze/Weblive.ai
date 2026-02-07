@@ -35,6 +35,18 @@ const languages = [
   { label: "English (en)", value: "en" }
 ];
 
+const pageOptions = [
+  "Home",
+  "About",
+  "Services",
+  "Pricing",
+  "Gallery",
+  "FAQ",
+  "Contact",
+  "Booking",
+  "Blog"
+];
+
 const sectionOrder: SectionType[] = [
   "hero",
   "about",
@@ -51,7 +63,8 @@ const defaultInputs: GeneratorInputs = {
   city: "",
   tone: tones[0],
   language: "ka",
-  prompt: ""
+  prompt: "",
+  targetPage: pageOptions[0]
 };
 
 export default function GeneratorClient() {
@@ -67,7 +80,7 @@ export default function GeneratorClient() {
     if (!projectId) return;
     const project = getProjectById(projectId);
     if (project) {
-      setInputs(project.inputs);
+      setInputs({ ...defaultInputs, ...project.inputs });
       setBlueprint(project.blueprint);
       setStatus("Project loaded.");
     }
@@ -242,6 +255,16 @@ export default function GeneratorClient() {
   };
 
   const currentProjects = useMemo(() => loadProjects(), [status]);
+  const recommendedPages = blueprint?.recommendedPages ?? [];
+  const design = blueprint?.pages?.[0]?.design ?? {
+    visualStyle: "",
+    layoutNotes: "",
+    spacing: "",
+    palette: [],
+    typography: [],
+    imagery: [],
+    components: []
+  };
 
   return (
     <div className="min-h-screen">
@@ -354,6 +377,25 @@ export default function GeneratorClient() {
               />
             </div>
 
+            <div>
+              <label className="text-sm font-medium text-ink/70">
+                Target page
+              </label>
+              <select
+                className="mt-1 w-full rounded-xl border border-ink/10 px-3 py-2"
+                value={inputs.targetPage}
+                onChange={(event) =>
+                  handleInputChange("targetPage", event.target.value)
+                }
+              >
+                {pageOptions.map((page) => (
+                  <option key={page} value={page}>
+                    {page}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="flex flex-wrap gap-2">
               <button
                 className="flex-1 rounded-xl bg-accent text-white py-2 font-medium disabled:opacity-50"
@@ -414,6 +456,32 @@ export default function GeneratorClient() {
         <section className="bg-white shadow-soft rounded-3xl p-6 border border-ink/5">
           {blueprint ? (
             <div className="space-y-8">
+              {recommendedPages.length > 0 && (
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-ink/40">
+                    Recommended Pages
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {recommendedPages.map((page) => (
+                      <button
+                        key={page}
+                        className={`text-xs rounded-full px-3 py-1 border ${
+                          inputs.targetPage === page
+                            ? "bg-accent text-white border-accent"
+                            : "bg-shell border-ink/10 text-ink/70"
+                        }`}
+                        onClick={() => {
+                          handleInputChange("targetPage", page);
+                          setStatus("Target page selected. Click Generate.");
+                        }}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-ink/40">
                   SEO
@@ -458,6 +526,40 @@ export default function GeneratorClient() {
                 </p>
                 <p className="text-sm text-ink/70">
                   Fonts: {blueprint.theme.fontSuggestions.join(", ")}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-ink/40">
+                  Page Design
+                </p>
+                <p className="text-sm text-ink/70">
+                  Visual style: {design.visualStyle}
+                </p>
+                <p className="text-sm text-ink/70">
+                  Layout notes: {design.layoutNotes}
+                </p>
+                <p className="text-sm text-ink/70">
+                  Spacing: {design.spacing}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {design.palette.map((color) => (
+                    <span
+                      key={color}
+                      className="text-xs bg-shell border border-ink/10 rounded-full px-3 py-1"
+                    >
+                      {color}
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-2 text-sm text-ink/70">
+                  Typography: {design.typography.join(", ")}
+                </p>
+                <p className="text-sm text-ink/70">
+                  Imagery: {design.imagery.join(", ")}
+                </p>
+                <p className="text-sm text-ink/70">
+                  Components: {design.components.join(", ")}
                 </p>
               </div>
 
