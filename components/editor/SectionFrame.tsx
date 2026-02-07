@@ -77,8 +77,10 @@ export default function SectionFrame({
         className="absolute left-3 top-3 z-10 cursor-grab rounded-full border border-slate-200 bg-white px-2 py-1 text-xs"
         {...attributes}
         {...listeners}
+        aria-label="Drag"
+        title="Drag"
       >
-        გადაადგილება
+        ≡
       </div>
       <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
         {children}

@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { SeoSchema, SiteSchema, WizardInputSchema } from "@/lib/schema";
 import { generateEditToken, generateShareSlug } from "@/lib/tokens";
 import { getSupabaseServer } from "@/lib/supabaseServer";
 import { generateWithAiStub } from "@/lib/generator/aiStub";
 
 const OPENAI_MODEL = "gpt-4o-mini";
+const OPENAI_IMAGE_MODEL = "gpt-image-1";
+const MAX_GENERATED_IMAGES = 2;
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 5;
@@ -41,6 +44,79 @@ export async function POST(req: Request) {
   const editToken = generateEditToken();
   const shareSlug = generateShareSlug();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+  async function generateImageBase64(prompt: string, apiKey: string) {
+    const response = await fetch("https://api.openai.com/v1/images/generations", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: OPENAI_IMAGE_MODEL,
+        prompt,
+        size: "1536x1024",
+      }),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return data?.data?.[0]?.b64_json || null;
+  }
+
+  async function applyGeneratedImages(site: any, projectId: string, apiKey: string, supabaseServer: any) {
+    let generated = 0;
+    const pages = site.pages.map((page: any) => ({
+      ...page,
+      sections: page.sections.map((section: any) => ({ ...section })),
+    }));
+
+    for (const page of pages) {
+      for (const section of page.sections) {
+        if (generated >= MAX_GENERATED_IMAGES) break;
+        const image = section.props?.image;
+        if (!image || typeof image.src !== "string") continue;
+        if (!image.src.startsWith("/placeholders")) continue;
+
+        const prompt = [
+          "Create a high-quality, realistic website hero image for a business.",
+          `Business name: ${input.businessName}.`,
+          `Category: ${input.category}.`,
+          `Description: ${input.description}.`,
+          "Style: clean, modern, professional, no text overlays.",
+        ].join(" ");
+
+        const base64 = await generateImageBase64(prompt, apiKey);
+        if (!base64) continue;
+
+        const buffer = Buffer.from(base64, "base64");
+        const path = `${projectId}/images/${section.id}.png`;
+        const upload = await supabaseServer.storage
+          .from("weblive-assets")
+          .upload(path, buffer, { contentType: "image/png", upsert: true });
+        if (upload.error) continue;
+
+        const { data: signed } = await supabaseServer.storage
+          .from("weblive-assets")
+          .createSignedUrl(path, 60 * 60 * 24 * 7);
+
+        section.props = {
+          ...section.props,
+          image: {
+            ...image,
+            src: signed?.signedUrl || image.src,
+            alt: image.alt || `${input.businessName} ვიზუალური`,
+          },
+        };
+        generated += 1;
+      }
+    }
+
+    return { ...site, pages };
+  }
 
   let site: unknown;
   let seo: unknown;
@@ -162,7 +238,7 @@ export async function POST(req: Request) {
                 type: "text",
                 text:
                   "You are an AI website planner. Return ONLY structured JSON that matches the provided schema. " +
-                  "Use the provided widget types and variants when possible. No HTML.",
+                  "Write all copy in Georgian. Use the provided widget types and variants when possible. No HTML.",
               },
             ],
           },
@@ -225,14 +301,23 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+
+  const projectId = crypto.randomUUID();
+  const apiKey = process.env.OPENAI_API_KEY;
+  const siteWithImages =
+    apiKey && siteParsed.data
+      ? await applyGeneratedImages(siteParsed.data, projectId, apiKey, supabaseServer)
+      : siteParsed.data;
+
   const { data, error } = await supabaseServer
     .from("projects")
     .insert({
+      id: projectId,
       edit_token: editToken,
       share_slug: shareSlug,
       expires_at: expiresAt.toISOString(),
       input,
-      site: siteParsed.data,
+      site: siteWithImages,
       seo: seoParsed.data,
       status: "generated",
     })

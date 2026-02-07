@@ -16,6 +16,21 @@ type HeaderProps = {
 };
 
 export default function Header({ variant, props, editable, onEdit }: HeaderProps) {
+  const renderNavItem = (item: { label: string; href: string }) => {
+    if (editable) {
+      return (
+        <span key={item.href} className="text-sm text-slate-600">
+          {item.label}
+        </span>
+      );
+    }
+    return (
+      <Link key={item.href} href={item.href}>
+        {item.label}
+      </Link>
+    );
+  };
+
   return (
     <header className="py-6 px-6">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6">
@@ -41,37 +56,33 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
           )}
         </div>
         <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
-          {props.nav.map((item) => (
-            <Link key={item.href} href={item.href}>
-              {item.label}
-            </Link>
-          ))}
+          {props.nav.map(renderNavItem)}
         </nav>
-        <Link
-          href={props.cta.href}
-          className="rounded-full bg-[color:var(--primary)] px-4 py-2 text-sm font-semibold text-white shadow"
-        >
-          {editable && onEdit ? (
-            <EditableText
-              as="span"
-              className="font-semibold"
-              value={props.cta.label}
-              onChange={(value) => onEdit("cta.label", value)}
-            />
-          ) : (
-            props.cta.label
-          )}
-        </Link>
+        {editable ? (
+          <button className="rounded-full bg-[color:var(--primary)] px-4 py-2 text-sm font-semibold text-white shadow">
+            {editable && onEdit ? (
+              <EditableText
+                as="span"
+                className="font-semibold"
+                value={props.cta.label}
+                onChange={(value) => onEdit("cta.label", value)}
+              />
+            ) : (
+              props.cta.label
+            )}
+          </button>
+        ) : (
+          <Link
+            href={props.cta.href}
+            className="rounded-full bg-[color:var(--primary)] px-4 py-2 text-sm font-semibold text-white shadow"
+          >
+            {props.cta.label}
+          </Link>
+        )}
       </div>
-      {variant === "centered" && (
-        <div className="mt-4 flex justify-center gap-4 text-xs text-slate-500 md:hidden">
-          {props.nav.map((item) => (
-            <Link key={item.href} href={item.href}>
-              {item.label}
-            </Link>
-          ))}
-        </div>
-      )}
+      <div className="mt-4 flex flex-wrap justify-center gap-4 text-xs text-slate-500 md:hidden">
+        {props.nav.map(renderNavItem)}
+      </div>
     </header>
   );
 }

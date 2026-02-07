@@ -8,6 +8,7 @@
 
 body {
   @apply bg-slate-950 text-white font-body antialiased;
+  overflow-x: hidden;
 }
 
 input, select, textarea {
@@ -16,4 +17,9 @@ input, select, textarea {
 
 * {
   box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }

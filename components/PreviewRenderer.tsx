@@ -1,7 +1,15 @@
 import { Site } from "@/lib/schema";
 import { renderWidget, WidgetType } from "@/widgets/registry";
 
-export default function PreviewRenderer({ site }: { site: Site }) {
+export default function PreviewRenderer({
+  site,
+  pageId,
+}: {
+  site: Site;
+  pageId?: string;
+}) {
+  const page = pageId ? site.pages.find((p) => p.id === pageId) : site.pages[0];
+  if (!page) return null;
   return (
     <div
       className="rounded-[32px] border border-slate-200 bg-white"
@@ -11,7 +19,7 @@ export default function PreviewRenderer({ site }: { site: Site }) {
         "--radius": `${site.theme.radius}px`,
       } as React.CSSProperties}
     >
-      {site.pages[0]?.sections.map((section) => (
+      {page.sections.map((section) => (
         <div key={section.id}>
           {renderWidget(section.widget as WidgetType, section.variant, section.props, site.theme)}
         </div>

@@ -2,7 +2,16 @@ import PreviewRenderer from "@/components/PreviewRenderer";
 import { fetchProjectByShareSlug } from "@/lib/projects";
 import { applyShareLinks } from "@/lib/shareLinks";
 
-export default async function SharePage({ params }: { params: { share_slug: string } }) {
+function normalizePath(segments: string[]) {
+  if (!segments || segments.length === 0) return "/";
+  return `/${segments.join("/")}`;
+}
+
+export default async function SharePagePath({
+  params,
+}: {
+  params: { share_slug: string; page: string[] };
+}) {
   const project = await fetchProjectByShareSlug(params.share_slug);
 
   if (!project) {
@@ -28,13 +37,15 @@ export default async function SharePage({ params }: { params: { share_slug: stri
     );
   }
 
+  const slug = normalizePath(params.page);
+  const site = applyShareLinks(project.site, params.share_slug);
+  const page = site.pages.find((p: any) => p.slug === slug) || site.pages[0];
+
   const expiresAt = new Date(project.expires_at).toLocaleDateString("ka-GE", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
-
-  const site = applyShareLinks(project.site, params.share_slug);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -42,7 +53,7 @@ export default async function SharePage({ params }: { params: { share_slug: stri
         გენერირებულია Weblive.ai-ის მიერ (ვადა: {expiresAt}).
       </div>
       <div className="mx-auto max-w-6xl px-6 py-8">
-        <PreviewRenderer site={site} />
+        <PreviewRenderer site={site} pageId={page.id} />
       </div>
     </div>
   );
