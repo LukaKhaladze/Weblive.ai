@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import EditableText from "@/components/EditableText";
 import WireframePage from "@/components/WireframePage";
+import TemplatePage from "@/components/TemplatePage";
 import { blueprintToMarkdown } from "@/lib/markdown";
 import {
   Blueprint,
@@ -105,7 +106,7 @@ const defaultInputs: GeneratorInputs = {
   primaryColor: "#007bff",
   secondaryColor: "#28a745",
   logoDataUrl: undefined,
-  visualVariationSeed: "",
+  designVariationSeed: "",
   version: 1
 };
 
@@ -174,6 +175,7 @@ export default function GeneratorClient() {
   const [isLoading, setIsLoading] = useState(false);
   const [showGlobal, setShowGlobal] = useState(false);
   const [wireframeMode, setWireframeMode] = useState(true);
+  const [templateMode, setTemplateMode] = useState(false);
 
   const createSeed = () =>
     Math.random().toString(36).slice(2, 8);
@@ -212,13 +214,13 @@ export default function GeneratorClient() {
       return;
     }
     const seed = createSeed();
-    setInputs((prev) => ({ ...prev, visualVariationSeed: seed, version: 1 }));
+    setInputs((prev) => ({ ...prev, designVariationSeed: seed, version: 1 }));
     setIsLoading(true);
     try {
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...inputs, visualVariationSeed: seed, version: 1 })
+        body: JSON.stringify({ ...inputs, designVariationSeed: seed, version: 1 })
       });
       if (!response.ok) {
         const message = await response.text();
@@ -249,7 +251,7 @@ export default function GeneratorClient() {
     const seed = createSeed();
     setInputs((prev) => ({
       ...prev,
-      visualVariationSeed: seed,
+      designVariationSeed: seed,
       version: nextVersion
     }));
     setIsLoading(true);
@@ -259,7 +261,7 @@ export default function GeneratorClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...inputs,
-          visualVariationSeed: seed,
+          designVariationSeed: seed,
           version: nextVersion
         })
       });
@@ -416,13 +418,25 @@ export default function GeneratorClient() {
     components: []
   };
   const page = blueprint?.pages?.[0];
-  const pageSections = useMemo(() => {
-    if (!page) return [];
-    const order = new Map(sectionOrder.map((type, index) => [type, index]));
-    return [...page.sections].sort(
-      (a, b) => (order.get(a.type) ?? 0) - (order.get(b.type) ?? 0)
-    );
-  }, [page]);
+  const pageSections = useMemo(() => page?.sections ?? [], [page]);
+
+  const applySectionOrder = useCallback(
+    (nextOrder: SectionType[]) => {
+      if (!blueprint) return;
+      setBlueprint((prev) => {
+        if (!prev) return prev;
+        const page = { ...prev.pages[0] };
+        const sectionMap = new Map(
+          page.sections.map((section) => [section.type, section])
+        );
+        page.sections = nextOrder
+          .map((type) => sectionMap.get(type))
+          .filter(Boolean) as typeof page.sections;
+        return { ...prev, pages: [page, ...prev.pages.slice(1)] };
+      });
+    },
+    [blueprint]
+  );
 
   const resolveUI = useCallback(
     (section: Blueprint["pages"][number]["sections"][number]) => {
@@ -1058,6 +1072,14 @@ export default function GeneratorClient() {
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
+                      checked={templateMode}
+                      onChange={(event) => setTemplateMode(event.target.checked)}
+                    />
+                    Template Mode
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
                       checked={showGlobal}
                       onChange={(event) => setShowGlobal(event.target.checked)}
                     />
@@ -1066,13 +1088,31 @@ export default function GeneratorClient() {
                 </div>
               </div>
 
-              {wireframeMode ? (
+              {templateMode ? (
+                <TemplatePage
+                  blueprint={blueprint}
+                  targetPage={inputs.targetPage}
+                  primaryColor={inputs.primaryColor}
+                  secondaryColor={inputs.secondaryColor}
+                  logoDataUrl={inputs.logoDataUrl}
+                  sections={pageSections}
+                  onReorder={applySectionOrder}
+                  onUpdateField={updateSectionField}
+                  onUpdateBullet={updateSectionBullet}
+                  onUpdateCta={updateSectionCta}
+                />
+              ) : wireframeMode ? (
                 <WireframePage
                   blueprint={blueprint}
                   targetPage={inputs.targetPage}
                   primaryColor={inputs.primaryColor}
                   secondaryColor={inputs.secondaryColor}
                   logoDataUrl={inputs.logoDataUrl}
+                  sections={pageSections}
+                  onReorder={applySectionOrder}
+                  onUpdateField={updateSectionField}
+                  onUpdateBullet={updateSectionBullet}
+                  onUpdateCta={updateSectionCta}
                 />
               ) : pageSections.length > 0 ? (
                 <div className="space-y-5">

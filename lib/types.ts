@@ -110,7 +110,7 @@ export type GeneratorInputs = {
   primaryColor: string;
   secondaryColor: string;
   logoDataUrl?: string;
-  visualVariationSeed: string;
+  designVariationSeed: string;
   version: number;
 };
 

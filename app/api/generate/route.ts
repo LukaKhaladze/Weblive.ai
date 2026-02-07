@@ -57,9 +57,19 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     "- For each section include a ui object for preview rendering.",
     "- ui.variant must be one of: hero, simple, cards, list, split, faqAccordion, contactForm, pricingTable, teamGrid, blogList.",
     "- ui.blocks is an array of blocks: heading, text, bullets, image, button, form.",
+    "- Set theme.primaryColor and theme.secondaryColor to match the chosen colors, and place them as the first two entries in theme.colorSuggestions.",
     "- If target page is FAQ, set the FAQ section ui.variant to faqAccordion and include more detailed Q&A.",
     "- If target page is Contact, set the Contact section ui.variant to contactForm.",
-    "- If target page is Home, use a hero-style layout with an image + CTA in the hero section."
+    "- If target page is Home, use a hero-style layout with an image + CTA in the hero section.",
+    "- Change layouts based on the design variation seed: hero layout (centered vs split vs image-first vs text-first), number of service cards (3–6), testimonials layout (slider vs grid vs quotes), FAQ style (accordion vs list), section order where possible, and button placement.",
+    "- Apply the chosen primary and secondary colors consistently across layout components.",
+    "- Choose ONE layout archetype and design accordingly:",
+    "- A) Modern SaaS-style (clean hero, split layout, big typography)",
+    "- B) Luxury/Clinic-style (large hero image, softer spacing, premium look)",
+    "- C) Agency-style (bold typography, minimal imagery, strong CTAs)",
+    "- D) Product-style (card-based sections, grid layout)",
+    "- E) Portfolio-style (visual-first, large images, minimal text)",
+    "- Structure and visual hierarchy must resemble contemporary professional websites."
   ];
 
   if (strict) {
@@ -149,7 +159,7 @@ function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
     `Social links: ${inputs.socialLinks}`,
     `Primary color: ${inputs.primaryColor}`,
     `Secondary color: ${inputs.secondaryColor}`,
-    `Visual variation seed: ${inputs.visualVariationSeed}`,
+    `Design variation seed: ${inputs.designVariationSeed}`,
     `User prompt: ${inputs.prompt}`
   );
 
