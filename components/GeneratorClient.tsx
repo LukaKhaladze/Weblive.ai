@@ -994,10 +994,11 @@ export default function GeneratorClient() {
                   limited.forEach((file) => {
                     const reader = new FileReader();
                     reader.onload = () => {
-                      if (typeof reader.result !== "string") return;
+                      const result = reader.result;
+                      if (typeof result !== "string") return;
                       setInputs((prev) => ({
                         ...prev,
-                        designReferences: [...prev.designReferences, reader.result].slice(0, 5)
+                        designReferences: [...prev.designReferences, result].slice(0, 5)
                       }));
                     };
                     reader.readAsDataURL(file);
