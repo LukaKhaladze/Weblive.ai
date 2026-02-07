@@ -4,6 +4,7 @@ export type WidgetCatalogItem = {
   id: string;
   title: string;
   category: string;
+  baseType?: string;
   widgetType: string;
   variant: string;
   tags: string[];

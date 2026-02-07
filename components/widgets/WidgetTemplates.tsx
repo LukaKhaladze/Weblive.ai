@@ -369,12 +369,16 @@ export function FeaturedGrid({ props, theme, onPropChange }: WidgetComponentProp
     props.items,
     []
   );
+  const padded = [...items];
+  while (padded.length < 5) {
+    padded.push({ title: "Item", imageHint: "Image", isPrimary: padded.length === 0 });
+  }
   return (
-    <section className="rounded-3xl border border-ink/10 bg-white p-8 space-y-4">
+    <section className="max-w-6xl mx-auto space-y-4">
       <div className="space-y-2">
         <EditableText
           as="span"
-          className="text-xs uppercase tracking-[0.2em] text-ink/50"
+          className="text-sm uppercase tracking-[0.06em] text-ink/60"
           value={getString(props.headingEyebrow)}
           onChange={(value) => onPropChange("headingEyebrow", value)}
           placeholder="Eyebrow"
@@ -394,25 +398,32 @@ export function FeaturedGrid({ props, theme, onPropChange }: WidgetComponentProp
           placeholder="Subheading"
         />
       </div>
-      <div className="grid gap-4 md:grid-cols-[1.2fr_1fr]">
-        <div className="rounded-2xl border border-dashed border-ink/20 bg-shell/60 h-48 flex items-center justify-center text-xs text-ink/50">
-          {items[0]?.imageHint ?? "Primary image"}
+      <div className="grid grid-cols-12 gap-6">
+        <div className="col-span-12 lg:col-span-7">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-md border border-[#eee] bg-shell/60 transition-transform hover:scale-[1.01]">
+            <div className="absolute inset-0 flex items-center justify-center text-xs text-ink/50">
+              {padded[0]?.imageHint ?? "Primary image"}
+            </div>
+            <div className="absolute bottom-4 left-4 uppercase text-[14px] tracking-[0.06em] text-white bg-black/40 px-2 py-1 rounded-sm">
+              {padded[0]?.title ?? "Primary"}
+            </div>
+          </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {items.slice(1, 5).map((item, index) => (
+        <div className="col-span-12 lg:col-span-5 grid grid-cols-2 gap-6">
+          {padded.slice(1, 5).map((item, index) => (
             <div
               key={index}
-              className="rounded-2xl border border-ink/10 bg-white p-3"
+              className="relative aspect-square overflow-hidden rounded-md border border-[#eee] bg-shell/60 transition-transform hover:scale-[1.01]"
             >
-              <div
-                className="h-16 rounded-xl border border-dashed border-ink/20 bg-shell/50 mb-2"
-              />
+              <div className="absolute inset-0 flex items-center justify-center text-xs text-ink/50">
+                {item.imageHint ?? "Image"}
+              </div>
               <EditableText
                 as="span"
-                className="text-sm font-medium"
+                className="absolute bottom-4 left-4 uppercase text-[14px] tracking-[0.06em] text-white bg-black/40 px-2 py-1 rounded-sm"
                 value={getString(item.title)}
                 onChange={(value) => {
-                  const next = [...items];
+                  const next = [...padded];
                   next[index + 1] = { ...next[index + 1], title: value };
                   onPropChange("items", next);
                 }}

@@ -189,6 +189,31 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     }
   },
   {
+    id: "featured_grid_bigleft",
+    name: "Featured Grid",
+    category: "Features",
+    widgetType: "FeaturedGrid",
+    variant: "bigLeft_4Right",
+    tags: ["grid", "featured"],
+    editableFields: [
+      { key: "headingEyebrow", label: "Eyebrow", type: "text" },
+      { key: "heading", label: "Heading", type: "text" },
+      { key: "subheading", label: "Subheading", type: "textarea" }
+    ],
+    defaultProps: {
+      headingEyebrow: "რჩეული კატეგორიები",
+      heading: "დაიწყე ყველაზე პოპულარულით",
+      subheading: "დიდი ბლოკი მარცხნივ და 4 პატარა ბლოკი მარჯვნივ.",
+      items: [
+        { title: "ესტეთიკა", imageHint: "დიდი ფოტო", isPrimary: true },
+        { title: "იმპლანტაცია", imageHint: "მცირე ფოტო" },
+        { title: "ორთოდონტია", imageHint: "მცირე ფოტო" },
+        { title: "ჰიგიენა", imageHint: "მცირე ფოტო" },
+        { title: "ბავშვები", imageHint: "მცირე ფოტო" }
+      ]
+    }
+  },
+  {
     id: "services_icon_row",
     name: "Services Icon Row",
     category: "Services",

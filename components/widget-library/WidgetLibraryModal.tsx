@@ -11,8 +11,11 @@ import { WidgetType } from "@/lib/types";
 import CreateWidgetFromPromptModal from "@/components/widget-library/CreateWidgetFromPromptModal";
 import {
   loadCustomWidgetCatalog,
-  upsertCustomWidget
+  upsertCustomWidget,
+  saveCustomWidgetCatalog,
+  loadCustomWidgetCategories
 } from "@/lib/storage/customWidgetCatalog";
+import WidgetPreviewFrame from "@/components/widget-library/WidgetPreviewFrame";
 
 type WidgetLibraryModalProps = {
   isOpen: boolean;
@@ -38,7 +41,15 @@ export default function WidgetLibraryModal({
   const [customWidgets, setCustomWidgets] = useState<WidgetCatalogItem[]>(() =>
     loadCustomWidgetCatalog()
   );
+  const [customCategories, setCustomCategories] = useState<string[]>(() =>
+    loadCustomWidgetCategories()
+  );
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const categoryTabs = useMemo(() => {
+    const builtIn = WIDGET_CATEGORIES.filter((item) => item !== "All");
+    return ["All", ...Array.from(new Set([...builtIn, ...customCategories]))];
+  }, [customCategories]);
 
   const catalog = useMemo(
     () => [...customWidgets, ...BUILTIN_WIDGET_CATALOG],
@@ -91,7 +102,7 @@ export default function WidgetLibraryModal({
         </div>
 
         <div className="flex flex-wrap gap-2 px-6 py-4">
-          {WIDGET_CATEGORIES.map((item) => (
+          {categoryTabs.map((item) => (
             <button
               key={item}
               className={`px-3 py-1 rounded-full text-xs border ${
@@ -122,38 +133,63 @@ export default function WidgetLibraryModal({
               return (
                 <div
                   key={widget.id}
-                  className="rounded-2xl border border-ink/10 bg-white p-4 shadow-soft space-y-3"
+                  className="relative rounded-2xl border border-ink/10 bg-white p-4 shadow-soft space-y-3"
                 >
-                  <div className="h-32 overflow-hidden rounded-xl border border-ink/10 bg-shell relative">
-                    <div className="absolute left-2 top-2 text-[9px] uppercase tracking-[0.2em] text-ink/40">
-                      Preview
-                    </div>
-                    {widget.isCustom && (!previewProps || widget.widgetType === "CustomWidgetPlaceholder") ? (
-                      <div className="h-full w-full flex items-center justify-center text-xs text-ink/50 px-4 text-center">
-                        Custom widget: {widget.title}
+                  {widget.isCustom ? (
+                    <button
+                      className="absolute right-3 top-3 rounded-full border border-red-200 text-red-600 text-xs px-2 py-1"
+                      onClick={() => {
+                        if (!confirm("Delete this widget? This cannot be undone.")) return;
+                        const next = customWidgets.filter((item) => item.id !== widget.id);
+                        setCustomWidgets(next);
+                        saveCustomWidgetCatalog(next);
+                      }}
+                      aria-label="Delete widget"
+                    >
+                      🗑
+                    </button>
+                  ) : null}
+                  <WidgetPreviewFrame
+                    mode={
+                      widget.isCustom &&
+                      (!previewProps || widget.widgetType === "CustomWidgetPlaceholder")
+                        ? "placeholder"
+                        : "rendered"
+                    }
+                  >
+                    {widget.isCustom &&
+                    (!previewProps || widget.widgetType === "CustomWidgetPlaceholder") ? (
+                      <div className="h-full w-full flex flex-col items-center justify-center text-xs text-ink/60 text-center gap-2">
+                        <span>Custom widget: {widget.title}</span>
+                        <span className="text-ink/40">
+                          Base type: {widget.baseType ?? "Custom"}
+                        </span>
+                        <div className="flex gap-2">
+                          <div className="h-10 w-16 rounded-lg bg-shell/80 border border-ink/10" />
+                          <div className="h-10 w-16 rounded-lg bg-shell/80 border border-ink/10" />
+                          <div className="h-10 w-16 rounded-lg bg-shell/80 border border-ink/10" />
+                        </div>
                       </div>
                     ) : (
-                      <div className="pointer-events-none origin-top-left scale-[0.6] p-3">
-                        <WidgetSection
-                          widget={{
-                            id: `preview-${widget.id}`,
-                            widgetType: widget.widgetType as WidgetType,
-                            variant: widget.variant,
-                            props: (widget.defaultProps ?? previewProps) ?? {},
-                            createdAt: new Date().toISOString()
-                          }}
-                          theme={{
-                            primaryColor: theme.primaryColor,
-                            secondaryColor: theme.secondaryColor,
-                            logoDataUrl:
-                              theme.logoDataUrl ??
-                              "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><rect width='64' height='64' rx='12' fill='%23e2e8f0'/><text x='32' y='38' font-size='10' text-anchor='middle' fill='%236b7280'>LOGO</text></svg>"
-                          }}
-                          onUpdate={() => {}}
-                        />
-                      </div>
+                      <WidgetSection
+                        widget={{
+                          id: `preview-${widget.id}`,
+                          widgetType: widget.widgetType as WidgetType,
+                          variant: widget.variant,
+                          props: (widget.defaultProps ?? previewProps) ?? {},
+                          createdAt: new Date().toISOString()
+                        }}
+                        theme={{
+                          primaryColor: theme.primaryColor,
+                          secondaryColor: theme.secondaryColor,
+                          logoDataUrl:
+                            theme.logoDataUrl ??
+                            "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><rect width='64' height='64' rx='12' fill='%23e2e8f0'/><text x='32' y='38' font-size='10' text-anchor='middle' fill='%236b7280'>LOGO</text></svg>"
+                        }}
+                        onUpdate={() => {}}
+                      />
                     )}
-                  </div>
+                  </WidgetPreviewFrame>
                   <div>
                     <p className="font-medium">{widget.title}</p>
                     <p className="text-xs text-ink/50">{widget.category}</p>
@@ -182,6 +218,7 @@ export default function WidgetLibraryModal({
                   >
                     Insert
                   </button>
+                  {widget.isCustom ? <div className="h-6" /> : null}
                 </div>
               );
             })}
@@ -195,6 +232,7 @@ export default function WidgetLibraryModal({
         onCreate={(item) => {
           const updated = upsertCustomWidget(item);
           setCustomWidgets(updated);
+          setCustomCategories(loadCustomWidgetCategories());
           setIsCreateOpen(false);
         }}
         language={language}
