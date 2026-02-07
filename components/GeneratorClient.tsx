@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import EditableText from "@/components/EditableText";
+import WireframePage from "@/components/WireframePage";
 import { blueprintToMarkdown } from "@/lib/markdown";
 import {
   Blueprint,
@@ -133,6 +134,7 @@ export default function GeneratorClient() {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [showGlobal, setShowGlobal] = useState(false);
+  const [wireframeMode, setWireframeMode] = useState(true);
 
   useEffect(() => {
     const projectId = searchParams.get("projectId");
@@ -713,17 +715,29 @@ export default function GeneratorClient() {
                     Target page: {inputs.targetPage}
                   </p>
                 </div>
-                <label className="flex items-center gap-2 text-xs text-ink/60">
-                  <input
-                    type="checkbox"
-                    checked={showGlobal}
-                    onChange={(event) => setShowGlobal(event.target.checked)}
-                  />
-                  Show Global Settings
-                </label>
+                <div className="flex flex-col gap-2 text-xs text-ink/60">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={wireframeMode}
+                      onChange={(event) => setWireframeMode(event.target.checked)}
+                    />
+                    Wireframe Mode
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={showGlobal}
+                      onChange={(event) => setShowGlobal(event.target.checked)}
+                    />
+                    Show Global Settings
+                  </label>
+                </div>
               </div>
 
-              {pageSections.length > 0 ? (
+              {wireframeMode ? (
+                <WireframePage blueprint={blueprint} targetPage={inputs.targetPage} />
+              ) : pageSections.length > 0 ? (
                 <div className="space-y-5">
                   {pageSections.map((section) => renderSection(section))}
                 </div>
