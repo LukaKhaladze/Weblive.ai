@@ -754,15 +754,16 @@ export default function GeneratorClient() {
                     const reader = new FileReader();
                     reader.onload = () => {
                       if (typeof reader.result !== "string") return;
+                      const reference = {
+                        id: crypto.randomUUID(),
+                        referenceType: "General" as const,
+                        dataUrl: reader.result
+                      };
                       setInputs((prev) => ({
                         ...prev,
                         styleReferences: [
                           ...(prev.styleReferences ?? []),
-                          {
-                            id: crypto.randomUUID(),
-                            referenceType: "General",
-                            dataUrl: reader.result
-                          }
+                          reference
                         ].slice(0, 5)
                       }));
                     };
