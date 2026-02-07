@@ -109,6 +109,7 @@ Example config (vercel.json):
 
 Set the `CRON_SECRET` in Vercel and call the endpoint with `Authorization: Bearer <CRON_SECRET>`.
 Generate a random value (32+ chars) for `CRON_SECRET` and redeploy after saving env vars.
+If cron calls fail, verify the header is `Authorization: Bearer <CRON_SECRET>`.
 
 ## Notes
 - Share and edit links expire 7 days after generation.
