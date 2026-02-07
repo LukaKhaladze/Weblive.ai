@@ -8,7 +8,9 @@ import {
   Blueprint,
   GeneratorInputs,
   Project,
-  SectionType
+  SectionType,
+  SectionUI,
+  UIBlock
 } from "@/lib/types";
 import {
   getProjectById,
@@ -67,6 +69,62 @@ const defaultInputs: GeneratorInputs = {
   targetPage: pageOptions[0]
 };
 
+const defaultFormFields = {
+  ka: ["სახელი", "ტელეფონი", "ელ.ფოსტა", "შეტყობინება"],
+  en: ["Name", "Phone", "Email", "Message"]
+};
+
+function fallbackVariant(type: SectionType, targetPage: string) {
+  const normalized = targetPage.toLowerCase();
+  if (type === "faq" || normalized === "faq") return "faqAccordion";
+  if (type === "contact" || normalized === "contact") return "contactForm";
+  if (type === "hero" || normalized === "home") return "hero";
+  if (type === "services") return "cards";
+  if (type === "testimonials") return "cards";
+  if (type === "why_us") return "list";
+  if (type === "about") return "split";
+  return "simple";
+}
+
+function buildFallbackUI(
+  section: Blueprint["pages"][number]["sections"][number],
+  language: "ka" | "en",
+  targetPage: string,
+  category: string
+): SectionUI {
+  const variant = fallbackVariant(section.type, targetPage);
+  const blocks: UIBlock[] = [
+    { type: "heading", value: section.heading },
+    { type: "text", value: section.content }
+  ];
+
+  if (section.bullets?.length) {
+    blocks.push({ type: "bullets", items: section.bullets });
+  }
+
+  if (variant === "hero" || variant === "split") {
+    blocks.push({ type: "image", alt: section.heading, hint: category });
+  }
+
+  if (variant === "contactForm") {
+    blocks.push({ type: "form", fields: defaultFormFields[language] });
+  } else {
+    blocks.push({ type: "button", label: section.cta.label, href: section.cta.href });
+  }
+
+  return { variant, blocks };
+}
+
+function stripUiForExport(blueprint: Blueprint): Blueprint {
+  return {
+    ...blueprint,
+    pages: blueprint.pages.map((page) => ({
+      ...page,
+      sections: page.sections.map(({ ui, ...rest }) => rest)
+    }))
+  };
+}
+
 export default function GeneratorClient() {
   const searchParams = useSearchParams();
   const [inputs, setInputs] = useState<GeneratorInputs>(defaultInputs);
@@ -74,6 +132,7 @@ export default function GeneratorClient() {
   const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showGlobal, setShowGlobal] = useState(false);
 
   useEffect(() => {
     const projectId = searchParams.get("projectId");
@@ -160,10 +219,12 @@ export default function GeneratorClient() {
       setError("Generate a blueprint before exporting.");
       return;
     }
+    const exportBlueprint =
+      format === "json" ? stripUiForExport(blueprint) : blueprint;
     const data =
       format === "json"
-        ? JSON.stringify(blueprint, null, 2)
-        : blueprintToMarkdown(blueprint);
+        ? JSON.stringify(exportBlueprint, null, 2)
+        : blueprintToMarkdown(exportBlueprint);
     const blob = new Blob([data], {
       type: format === "json" ? "application/json" : "text/markdown"
     });
@@ -264,6 +325,190 @@ export default function GeneratorClient() {
     typography: [],
     imagery: [],
     components: []
+  };
+  const page = blueprint?.pages?.[0];
+  const pageSections = useMemo(() => {
+    if (!page) return [];
+    const order = new Map(sectionOrder.map((type, index) => [type, index]));
+    return [...page.sections].sort(
+      (a, b) => (order.get(a.type) ?? 0) - (order.get(b.type) ?? 0)
+    );
+  }, [page]);
+
+  const resolveUI = useCallback(
+    (section: Blueprint["pages"][number]["sections"][number]) => {
+      if (!blueprint) return null;
+      return (
+        section.ui ??
+        buildFallbackUI(
+          section,
+          blueprint.site.language,
+          inputs.targetPage,
+          blueprint.site.category
+        )
+      );
+    },
+    [blueprint, inputs.targetPage]
+  );
+
+  const renderBlock = (
+    section: Blueprint["pages"][number]["sections"][number],
+    block: UIBlock,
+    index: number
+  ) => {
+    switch (block.type) {
+      case "heading":
+        return (
+          <EditableText
+            key={`${section.type}-heading-${index}`}
+            as="h3"
+            className="text-2xl font-display"
+            value={block.value}
+            onChange={(value) => updateSectionField(section.type, "heading", value)}
+            placeholder="Heading"
+          />
+        );
+      case "text":
+        return (
+          <EditableText
+            key={`${section.type}-text-${index}`}
+            as="p"
+            className="text-sm text-ink/70"
+            value={block.value}
+            onChange={(value) => updateSectionField(section.type, "content", value)}
+            placeholder="Text"
+          />
+        );
+      case "bullets":
+        return (
+          <ul key={`${section.type}-bullets-${index}`} className="space-y-2">
+            {block.items.map((item, bulletIndex) => (
+              <li
+                key={`${section.type}-bullet-${bulletIndex}`}
+                className="flex items-start gap-2"
+              >
+                <span className="mt-1 h-2 w-2 rounded-full bg-ink/30" />
+                <EditableText
+                  as="p"
+                  className="text-sm text-ink/70"
+                  value={item}
+                  onChange={(value) =>
+                    updateSectionBullet(section.type, bulletIndex, value)
+                  }
+                  placeholder="Bullet"
+                />
+              </li>
+            ))}
+          </ul>
+        );
+      case "image":
+        return (
+          <div
+            key={`${section.type}-image-${index}`}
+            className="rounded-2xl border border-dashed border-ink/20 bg-shell/60 h-40 flex items-center justify-center text-xs text-ink/50"
+          >
+            {block.hint || block.alt || "Image"}
+          </div>
+        );
+      case "button":
+        return (
+          <div key={`${section.type}-button-${index}`} className="flex gap-2">
+            <EditableText
+              as="span"
+              className="inline-flex items-center justify-center rounded-xl bg-ink text-white px-4 py-2 text-xs uppercase tracking-[0.2em]"
+              value={block.label}
+              onChange={(value) => updateSectionCta(section.type, "label", value)}
+              placeholder="CTA"
+            />
+            <EditableText
+              as="span"
+              className="text-xs text-ink/50 self-center"
+              value={block.href}
+              onChange={(value) => updateSectionCta(section.type, "href", value)}
+              placeholder="/contact"
+            />
+          </div>
+        );
+      case "form":
+        return (
+          <div
+            key={`${section.type}-form-${index}`}
+            className="grid gap-2"
+          >
+            {block.fields.map((field) => (
+              <div
+                key={field}
+                className="rounded-xl border border-ink/10 bg-shell/60 px-3 py-2 text-xs text-ink/50"
+              >
+                {field}
+              </div>
+            ))}
+            <div className="rounded-xl bg-ink text-white px-4 py-2 text-xs uppercase tracking-[0.2em] w-fit">
+              Submit
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderSection = (
+    section: Blueprint["pages"][number]["sections"][number]
+  ) => {
+    const ui = resolveUI(section);
+    if (!ui) return null;
+    const isFaq = ui.variant === "faqAccordion";
+    const isContact = ui.variant === "contactForm";
+    return (
+      <div
+        key={section.type}
+        className="rounded-3xl border border-ink/10 bg-shell/40 p-6 space-y-4"
+      >
+        <div className="flex items-center justify-between">
+          <span className="text-xs uppercase tracking-[0.3em] text-ink/40">
+            {section.type.replace("_", " ")} · {ui.variant}
+          </span>
+        </div>
+        {isFaq ? (
+          <div className="space-y-3">
+            {section.bullets.map((question, index) => (
+              <div
+                key={`${section.type}-faq-${index}`}
+                className="rounded-2xl border border-ink/10 bg-white p-4"
+              >
+                <EditableText
+                  as="p"
+                  className="text-sm font-medium"
+                  value={question}
+                  onChange={(value) =>
+                    updateSectionBullet(section.type, index, value)
+                  }
+                  placeholder="Question"
+                />
+                <EditableText
+                  as="p"
+                  className="text-xs text-ink/60 mt-2"
+                  value={section.content}
+                  onChange={(value) =>
+                    updateSectionField(section.type, "content", value)
+                  }
+                  placeholder="Answer"
+                />
+              </div>
+            ))}
+          </div>
+        ) : isContact ? (
+          <div className="space-y-4">
+            {ui.blocks.map((block, index) => renderBlock(section, block, index))}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {ui.blocks.map((block, index) => renderBlock(section, block, index))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -455,182 +700,151 @@ export default function GeneratorClient() {
 
         <section className="bg-white shadow-soft rounded-3xl p-6 border border-ink/5">
           {blueprint ? (
-            <div className="space-y-8">
-              {recommendedPages.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-xs uppercase tracking-[0.3em] text-ink/40">
-                    Recommended Pages
+                    Page Preview
                   </p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {recommendedPages.map((page) => (
-                      <button
-                        key={page}
-                        className={`text-xs rounded-full px-3 py-1 border ${
-                          inputs.targetPage === page
-                            ? "bg-accent text-white border-accent"
-                            : "bg-shell border-ink/10 text-ink/70"
-                        }`}
-                        onClick={() => {
-                          handleInputChange("targetPage", page);
-                          setStatus("Target page selected. Click Generate.");
-                        }}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                  </div>
+                  <h2 className="text-2xl font-display">
+                    {page?.title || inputs.targetPage}
+                  </h2>
+                  <p className="text-xs text-ink/50">
+                    Target page: {inputs.targetPage}
+                  </p>
                 </div>
+                <label className="flex items-center gap-2 text-xs text-ink/60">
+                  <input
+                    type="checkbox"
+                    checked={showGlobal}
+                    onChange={(event) => setShowGlobal(event.target.checked)}
+                  />
+                  Show Global Settings
+                </label>
+              </div>
+
+              {pageSections.length > 0 ? (
+                <div className="space-y-5">
+                  {pageSections.map((section) => renderSection(section))}
+                </div>
+              ) : (
+                <p className="text-sm text-ink/60">
+                  No sections available for this page yet.
+                </p>
               )}
 
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-ink/40">
-                  SEO
-                </p>
-                <EditableText
-                  as="h2"
-                  className="text-2xl font-display"
-                  value={blueprint.seo.metaTitle}
-                  onChange={(value) => updateSeo("metaTitle", value)}
-                  placeholder="SEO Meta Title"
-                />
-                <EditableText
-                  as="p"
-                  className="text-sm text-ink/70"
-                  value={blueprint.seo.metaDescription}
-                  onChange={(value) => updateSeo("metaDescription", value)}
-                  placeholder="SEO Meta Description"
-                />
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {blueprint.seo.keywords.map((keyword, index) => (
-                    <EditableText
-                      key={`${keyword}-${index}`}
-                      as="span"
-                      className="text-xs bg-shell border border-ink/10 rounded-full px-3 py-1"
-                      value={keyword}
-                      onChange={(value) => updateKeyword(index, value)}
-                      placeholder="keyword"
-                    />
-                  ))}
-                </div>
-              </div>
+              {showGlobal && (
+                <div className="space-y-6 border-t border-ink/10 pt-6">
+                  {recommendedPages.length > 0 && (
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-ink/40">
+                        Recommended Pages
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {recommendedPages.map((pageName) => (
+                          <button
+                            key={pageName}
+                            className={`text-xs rounded-full px-3 py-1 border ${
+                              inputs.targetPage === pageName
+                                ? "bg-accent text-white border-accent"
+                                : "bg-shell border-ink/10 text-ink/70"
+                            }`}
+                            onClick={() => {
+                              handleInputChange("targetPage", pageName);
+                              setStatus("Target page selected. Click Generate.");
+                            }}
+                          >
+                            {pageName}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-ink/40">
-                  Theme
-                </p>
-                <p className="text-sm text-ink/70">
-                  Style: {blueprint.theme.styleKeywords.join(", ")}
-                </p>
-                <p className="text-sm text-ink/70">
-                  Colors: {blueprint.theme.colorSuggestions.join(", ")}
-                </p>
-                <p className="text-sm text-ink/70">
-                  Fonts: {blueprint.theme.fontSuggestions.join(", ")}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-ink/40">
-                  Page Design
-                </p>
-                <p className="text-sm text-ink/70">
-                  Visual style: {design.visualStyle}
-                </p>
-                <p className="text-sm text-ink/70">
-                  Layout notes: {design.layoutNotes}
-                </p>
-                <p className="text-sm text-ink/70">
-                  Spacing: {design.spacing}
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {design.palette.map((color) => (
-                    <span
-                      key={color}
-                      className="text-xs bg-shell border border-ink/10 rounded-full px-3 py-1"
-                    >
-                      {color}
-                    </span>
-                  ))}
-                </div>
-                <p className="mt-2 text-sm text-ink/70">
-                  Typography: {design.typography.join(", ")}
-                </p>
-                <p className="text-sm text-ink/70">
-                  Imagery: {design.imagery.join(", ")}
-                </p>
-                <p className="text-sm text-ink/70">
-                  Components: {design.components.join(", ")}
-                </p>
-              </div>
-
-              {sectionOrder.map((type) => {
-                const section = blueprint.pages[0].sections.find(
-                  (entry) => entry.type === type
-                );
-                if (!section) return null;
-                return (
-                  <div key={section.type} className="border-t border-ink/10 pt-4">
+                  <div>
                     <p className="text-xs uppercase tracking-[0.3em] text-ink/40">
-                      {section.type.replace("_", " ")}
+                      SEO
                     </p>
                     <EditableText
-                      as="h3"
-                      className="text-xl font-display"
-                      value={section.heading}
-                      onChange={(value) =>
-                        updateSectionField(section.type, "heading", value)
-                      }
-                      placeholder="Section heading"
+                      as="h2"
+                      className="text-2xl font-display"
+                      value={blueprint.seo.metaTitle}
+                      onChange={(value) => updateSeo("metaTitle", value)}
+                      placeholder="SEO Meta Title"
                     />
                     <EditableText
                       as="p"
                       className="text-sm text-ink/70"
-                      value={section.content}
+                      value={blueprint.seo.metaDescription}
                       onChange={(value) =>
-                        updateSectionField(section.type, "content", value)
+                        updateSeo("metaDescription", value)
                       }
-                      placeholder="Section content"
+                      placeholder="SEO Meta Description"
                     />
-                    {section.bullets.length > 0 && (
-                      <ul className="mt-3 space-y-2">
-                        {section.bullets.map((bullet, index) => (
-                          <li key={`${section.type}-${index}`}>
-                            <EditableText
-                              as="p"
-                              className="text-sm text-ink/70"
-                              value={bullet}
-                              onChange={(value) =>
-                                updateSectionBullet(section.type, index, value)
-                              }
-                              placeholder="Bullet"
-                            />
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    <div className="mt-3 flex flex-col sm:flex-row gap-2">
-                      <EditableText
-                        as="span"
-                        className="text-xs uppercase tracking-[0.2em] text-ink/50"
-                        value={section.cta.label}
-                        onChange={(value) =>
-                          updateSectionCta(section.type, "label", value)
-                        }
-                        placeholder="CTA label"
-                      />
-                      <EditableText
-                        as="span"
-                        className="text-xs text-ink/60"
-                        value={section.cta.href}
-                        onChange={(value) =>
-                          updateSectionCta(section.type, "href", value)
-                        }
-                        placeholder="CTA link"
-                      />
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {blueprint.seo.keywords.map((keyword, index) => (
+                        <EditableText
+                          key={`${keyword}-${index}`}
+                          as="span"
+                          className="text-xs bg-shell border border-ink/10 rounded-full px-3 py-1"
+                          value={keyword}
+                          onChange={(value) => updateKeyword(index, value)}
+                          placeholder="keyword"
+                        />
+                      ))}
                     </div>
                   </div>
-                );
-              })}
+
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-ink/40">
+                      Theme
+                    </p>
+                    <p className="text-sm text-ink/70">
+                      Style: {blueprint.theme.styleKeywords.join(", ")}
+                    </p>
+                    <p className="text-sm text-ink/70">
+                      Colors: {blueprint.theme.colorSuggestions.join(", ")}
+                    </p>
+                    <p className="text-sm text-ink/70">
+                      Fonts: {blueprint.theme.fontSuggestions.join(", ")}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.3em] text-ink/40">
+                      Page Design
+                    </p>
+                    <p className="text-sm text-ink/70">
+                      Visual style: {design.visualStyle}
+                    </p>
+                    <p className="text-sm text-ink/70">
+                      Layout notes: {design.layoutNotes}
+                    </p>
+                    <p className="text-sm text-ink/70">
+                      Spacing: {design.spacing}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {design.palette.map((color) => (
+                        <span
+                          key={color}
+                          className="text-xs bg-shell border border-ink/10 rounded-full px-3 py-1"
+                        >
+                          {color}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="mt-2 text-sm text-ink/70">
+                      Typography: {design.typography.join(", ")}
+                    </p>
+                    <p className="text-sm text-ink/70">
+                      Imagery: {design.imagery.join(", ")}
+                    </p>
+                    <p className="text-sm text-ink/70">
+                      Components: {design.components.join(", ")}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-center text-ink/60">

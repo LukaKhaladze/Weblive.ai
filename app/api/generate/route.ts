@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Blueprint, GeneratorInputs } from "@/lib/types";
+import { Blueprint, GeneratorInputs, SectionType } from "@/lib/types";
 
 export const runtime = "nodejs";
 
@@ -31,7 +31,7 @@ function validateInputs(body: GeneratorInputs) {
 }
 
 function buildPrompt(inputs: GeneratorInputs, strict: boolean) {
-  return `You are a senior brand strategist. Produce ONLY valid JSON that matches the schema exactly.\n\nRequirements:\n- The business is in Georgia (country).\n- Content must be practical for small businesses in Georgia.\n- If language is ka, ALL strings must be Georgian.\n- If language is en, ALL strings must be English.\n- No markdown, no code fences, no commentary, JSON only.\n- Use the section order: hero, about, services, why_us, testimonials, faq, contact.\n- Provide 3-5 bullets per section when relevant.\n- Provide realistic CTA labels and hrefs (e.g., "/contact", "tel:+995...", "mailto:...").\n- Include recommendedPages (5-8 page names) that best fit the business.\n- Generate content for the target page only, but keep pages array with a single page object.\n- Include a design object for the page (visualStyle, layoutNotes, spacing, palette, typography, imagery, components).\n${strict ? "- Output must be strictly valid JSON. If you cannot comply, output an empty JSON object: {}" : ""}\n\nSchema:\n{\n  \"site\": {\n    \"businessName\": string,\n    \"category\": string,\n    \"city\": string,\n    \"tone\": string,\n    \"language\": \"ka\" | \"en\"\n  },\n  \"theme\": {\n    \"styleKeywords\": string[],\n    \"colorSuggestions\": string[],\n    \"fontSuggestions\": string[]\n  },\n  \"recommendedPages\": string[],\n  \"pages\": [\n    {\n      \"slug\": \"home\",\n      \"title\": string,\n      \"design\": {\n        \"visualStyle\": string,\n        \"layoutNotes\": string,\n        \"spacing\": string,\n        \"palette\": string[],\n        \"typography\": string[],\n        \"imagery\": string[],\n        \"components\": string[]\n      },\n      \"sections\": [\n        {\n          \"type\": \"hero\" | \"about\" | \"services\" | \"why_us\" | \"testimonials\" | \"faq\" | \"contact\",\n          \"heading\": string,\n          \"content\": string,\n          \"bullets\": string[],\n          \"cta\": { \"label\": string, \"href\": string }\n        }\n      ]\n    }\n  ],\n  \"seo\": {\n    \"metaTitle\": string,\n    \"metaDescription\": string,\n    \"keywords\": string[]\n  }\n}\n\nInput:\nBusiness name: ${inputs.businessName}\nCategory: ${inputs.category}\nCity: ${inputs.city}\nTone: ${inputs.tone}\nLanguage: ${inputs.language}\nTarget page: ${inputs.targetPage}\nUser prompt: ${inputs.prompt}`;
+  return `You are a senior brand strategist. Produce ONLY valid JSON that matches the schema exactly.\n\nRequirements:\n- The business is in Georgia (country).\n- Content must be practical for small businesses in Georgia.\n- If language is ka, ALL strings must be Georgian.\n- If language is en, ALL strings must be English.\n- No markdown, no code fences, no commentary, JSON only.\n- Use the section order: hero, about, services, why_us, testimonials, faq, contact.\n- Provide 3-5 bullets per section when relevant.\n- Provide realistic CTA labels and hrefs (e.g., \"/contact\", \"tel:+995...\", \"mailto:...\").\n- Include recommendedPages (5-8 page names) that best fit the business.\n- Generate content for the target page only, but keep pages array with a single page object.\n- Include a design object for the page (visualStyle, layoutNotes, spacing, palette, typography, imagery, components).\n- For each section include a ui object for preview rendering.\n- ui.variant must be one of: hero, simple, cards, list, split, faqAccordion, contactForm, pricingTable, teamGrid, blogList.\n- ui.blocks is an array of blocks: heading, text, bullets, image, button, form.\n- If target page is FAQ, set the FAQ section ui.variant to faqAccordion and include more detailed Q&A.\n- If target page is Contact, set the Contact section ui.variant to contactForm.\n- If target page is Home, use a hero-style layout with an image + CTA in the hero section.\n${strict ? \"- Output must be strictly valid JSON. If you cannot comply, output an empty JSON object: {}\" : \"\"}\n\nSchema:\n{\n  \"site\": {\n    \"businessName\": string,\n    \"category\": string,\n    \"city\": string,\n    \"tone\": string,\n    \"language\": \"ka\" | \"en\"\n  },\n  \"theme\": {\n    \"styleKeywords\": string[],\n    \"colorSuggestions\": string[],\n    \"fontSuggestions\": string[]\n  },\n  \"recommendedPages\": string[],\n  \"pages\": [\n    {\n      \"slug\": \"home\",\n      \"title\": string,\n      \"design\": {\n        \"visualStyle\": string,\n        \"layoutNotes\": string,\n        \"spacing\": string,\n        \"palette\": string[],\n        \"typography\": string[],\n        \"imagery\": string[],\n        \"components\": string[]\n      },\n      \"sections\": [\n        {\n          \"type\": \"hero\" | \"about\" | \"services\" | \"why_us\" | \"testimonials\" | \"faq\" | \"contact\",\n          \"heading\": string,\n          \"content\": string,\n          \"bullets\": string[],\n          \"cta\": { \"label\": string, \"href\": string },\n          \"ui\": {\n            \"variant\": \"hero\" | \"simple\" | \"cards\" | \"list\" | \"split\" | \"faqAccordion\" | \"contactForm\" | \"pricingTable\" | \"teamGrid\" | \"blogList\",\n            \"blocks\": [\n              { \"type\": \"heading\", \"value\": string },\n              { \"type\": \"text\", \"value\": string },\n              { \"type\": \"bullets\", \"items\": string[] },\n              { \"type\": \"image\", \"alt\": string, \"hint\": string },\n              { \"type\": \"button\", \"label\": string, \"href\": string },\n              { \"type\": \"form\", \"fields\": string[] }\n            ]\n          }\n        }\n      ]\n    }\n  ],\n  \"seo\": {\n    \"metaTitle\": string,\n    \"metaDescription\": string,\n    \"keywords\": string[]\n  }\n}\n\nInput:\nBusiness name: ${inputs.businessName}\nCategory: ${inputs.category}\nCity: ${inputs.city}\nTone: ${inputs.tone}\nLanguage: ${inputs.language}\nTarget page: ${inputs.targetPage}\nUser prompt: ${inputs.prompt}`;
 }
 
 async function callOpenAI(prompt: string) {
@@ -75,6 +75,70 @@ function parseBlueprint(raw: string) {
   return JSON.parse(trimmed) as Blueprint;
 }
 
+function toLocalizedFields(language: "ka" | "en") {
+  if (language === "ka") {
+    return ["სახელი", "ტელეფონი", "ელ.ფოსტა", "შეტყობინება"];
+  }
+  return ["Name", "Phone", "Email", "Message"];
+}
+
+function fallbackVariant(type: SectionType, targetPage: string) {
+  const normalized = targetPage.toLowerCase();
+  if (type === "faq" || normalized === "faq") return "faqAccordion";
+  if (type === "contact" || normalized === "contact") return "contactForm";
+  if (type === "hero" || normalized === "home") return "hero";
+  if (type === "services") return "cards";
+  if (type === "testimonials") return "cards";
+  if (type === "why_us") return "list";
+  if (type === "about") return "split";
+  return "simple";
+}
+
+function withFallbackUI(blueprint: Blueprint, targetPage: string): Blueprint {
+  const fields = toLocalizedFields(blueprint.site.language);
+  const pages = blueprint.pages.map((page) => {
+    const sections = page.sections.map((section) => {
+      if (section.ui) return section;
+      const variant = fallbackVariant(section.type, targetPage);
+      const blocks: Array<
+        | { type: "heading"; value: string }
+        | { type: "text"; value: string }
+        | { type: "bullets"; items: string[] }
+        | { type: "image"; alt: string; hint: string }
+        | { type: "button"; label: string; href: string }
+        | { type: "form"; fields: string[] }
+      > = [
+        { type: "heading", value: section.heading },
+        { type: "text", value: section.content }
+      ];
+
+      if (section.bullets?.length) {
+        blocks.push({ type: "bullets", items: section.bullets });
+      }
+      if (variant === "hero" || variant === "split") {
+        blocks.push({
+          type: "image",
+          alt: section.heading,
+          hint: blueprint.site.category
+        });
+      }
+      if (variant === "contactForm") {
+        blocks.push({ type: "form", fields });
+      } else {
+        blocks.push({
+          type: "button",
+          label: section.cta.label,
+          href: section.cta.href
+        });
+      }
+
+      return { ...section, ui: { variant, blocks } };
+    });
+    return { ...page, sections };
+  });
+  return { ...blueprint, pages };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as GeneratorInputs;
@@ -86,12 +150,12 @@ export async function POST(request: NextRequest) {
     const initialPrompt = buildPrompt(body, false);
     let raw = await callOpenAI(initialPrompt);
     try {
-      const blueprint = parseBlueprint(raw);
+      const blueprint = withFallbackUI(parseBlueprint(raw), body.targetPage);
       return NextResponse.json(blueprint);
     } catch {
       const strictPrompt = buildPrompt(body, true);
       raw = await callOpenAI(strictPrompt);
-      const blueprint = parseBlueprint(raw);
+      const blueprint = withFallbackUI(parseBlueprint(raw), body.targetPage);
       return NextResponse.json(blueprint);
     }
   } catch (err) {

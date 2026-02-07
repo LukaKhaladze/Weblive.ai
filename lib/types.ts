@@ -9,6 +9,29 @@ export type SectionType =
   | "faq"
   | "contact";
 
+export type UIBlock =
+  | { type: "heading"; value: string }
+  | { type: "text"; value: string }
+  | { type: "bullets"; items: string[] }
+  | { type: "image"; alt: string; hint: string }
+  | { type: "button"; label: string; href: string }
+  | { type: "form"; fields: string[] };
+
+export type SectionUI = {
+  variant:
+    | "hero"
+    | "simple"
+    | "cards"
+    | "list"
+    | "split"
+    | "faqAccordion"
+    | "contactForm"
+    | "pricingTable"
+    | "teamGrid"
+    | "blogList";
+  blocks: UIBlock[];
+};
+
 export type Blueprint = {
   site: {
     businessName: string;
@@ -44,6 +67,7 @@ export type Blueprint = {
         label: string;
         href: string;
       };
+      ui?: SectionUI;
     }>;
   }>;
   seo: {
