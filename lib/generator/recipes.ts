@@ -110,7 +110,7 @@ export const recipes: Record<Category, Recipe> = {
         id: "products",
         name: "პროდუქტები",
         slug: "/products",
-        sections: ["header", "features", "pricing", "footer"],
+        sections: ["header", "productGrid", "pricing", "footer"],
       },
       {
         id: "about",

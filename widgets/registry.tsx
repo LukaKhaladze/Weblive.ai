@@ -12,6 +12,7 @@ import Pricing from "@/widgets/pricing";
 import BlogPreview from "@/widgets/blogPreview";
 import Contact from "@/widgets/contact";
 import Footer from "@/widgets/footer";
+import ProductGrid from "@/widgets/productGrid";
 
 const businessTags = [
   "clinic",
@@ -41,6 +42,7 @@ export type WidgetType =
   | "team"
   | "pricing"
   | "blogPreview"
+  | "productGrid"
   | "contact"
   | "footer";
 
@@ -284,6 +286,38 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
       { label: "Posts", path: "posts", type: "list" },
     ],
     Component: BlogPreview,
+  },
+  productGrid: {
+    type: "productGrid",
+    name: "პროდუქტები",
+    category: "კონტენტი",
+    tags: [...businessTags, "products", "ecommerce"],
+    variants: ["cards"],
+    defaultProps: (input, index) => ({
+      title: "პროდუქტის კატეგორიები",
+      items: [
+        {
+          title: "პროდუქტის სახელი",
+          price: "100 ლარი",
+          image: { src: getPlaceholderImage(index), alt: `${input.businessName} პროდუქტი` },
+        },
+        {
+          title: "პროდუქტის სახელი",
+          price: "100 ლარი",
+          image: { src: getPlaceholderImage(index + 1), alt: `${input.businessName} პროდუქტი` },
+        },
+        {
+          title: "პროდუქტის სახელი",
+          price: "100 ლარი",
+          image: { src: getPlaceholderImage(index + 2), alt: `${input.businessName} პროდუქტი` },
+        },
+      ],
+    }),
+    editable: [
+      { label: "სათაური", path: "title", type: "text" },
+      { label: "ელემენტები", path: "items", type: "list" },
+    ],
+    Component: ProductGrid,
   },
   contact: {
     type: "contact",
