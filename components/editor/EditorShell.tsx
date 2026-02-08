@@ -164,6 +164,13 @@ export default function EditorShell({
     }));
   }
 
+  function updatePageName(pageId: string, name: string) {
+    setSite((prev) => ({
+      ...prev,
+      pages: prev.pages.map((page) => (page.id === pageId ? { ...page, name } : page)),
+    }));
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     if (!currentPage) return;
     const { active, over } = event;
@@ -370,15 +377,28 @@ export default function EditorShell({
           {selectedTab === "გვერდები" && (
             <div className="space-y-2 text-sm">
               {site.pages.map((page) => (
-                <button
+                <div
                   key={page.id}
-                  className={`w-full rounded-xl px-3 py-2 text-left ${
+                  className={`flex items-center gap-2 rounded-xl px-3 py-2 ${
                     page.id === currentPage.id ? "bg-white text-slate-900" : "text-white/70"
                   }`}
-                  onClick={() => setSelectedPageId(page.id)}
                 >
-                  {page.name}
-                </button>
+                  <button
+                    className="flex-1 text-left text-sm"
+                    onClick={() => setSelectedPageId(page.id)}
+                  >
+                    {page.name}
+                  </button>
+                  <input
+                    className={`w-28 rounded-full border px-2 py-1 text-xs ${
+                      page.id === currentPage.id
+                        ? "border-slate-200 bg-white text-slate-900"
+                        : "border-white/20 bg-transparent text-white"
+                    }`}
+                    value={page.name}
+                    onChange={(event) => updatePageName(page.id, event.target.value)}
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -650,6 +670,24 @@ export default function EditorShell({
                                     ...sectionData,
                                     props: updateByPath(sectionData.props, path, value),
                                   }));
+
+                                  if (section.widget === "header" && path.startsWith("nav.")) {
+                                    const parts = path.split(".");
+                                    if (parts.length === 3 && parts[2] === "label") {
+                                      const index = Number(parts[1]);
+                                      const navItem = section.props?.nav?.[index];
+                                      if (navItem?.href) {
+                                        setSite((prev) => ({
+                                          ...prev,
+                                          pages: prev.pages.map((page) =>
+                                            page.slug === navItem.href
+                                              ? { ...page, name: value }
+                                              : page
+                                          ),
+                                        }));
+                                      }
+                                    }
+                                  }
                                 }
                               )
                             )}

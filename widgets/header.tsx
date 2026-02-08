@@ -51,11 +51,21 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
   ]
     .filter(Boolean)
     .join(" ");
-  const renderNavItem = (item: { label: string; href: string }) => {
+  const renderNavItem = (item: { label: string; href: string }, index: number) => {
     if (editable) {
       return (
-        <span key={item.href} className={`max-w-[140px] truncate text-sm ${mutedText}`}>
-          {item.label}
+        <span key={`${item.href}-${index}`} className={`max-w-[140px] truncate text-sm ${mutedText}`}>
+          {onEdit ? (
+            <EditableText
+              as="span"
+              className="font-medium"
+              value={item.label}
+              onChange={(value) => onEdit(`nav.${index}.label`, value)}
+              responsiveStyle={styleFor(`nav.${index}.label`)}
+            />
+          ) : (
+            item.label
+          )}
         </span>
       );
     }
@@ -137,7 +147,7 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
               <div className="flex-1 flex justify-end">{CtaButton}</div>
             </div>
             <nav className={`mt-4 flex flex-wrap items-center justify-center gap-6 pb-2 text-xs ${mutedText} md:text-sm`}>
-              {props.nav.map(renderNavItem)}
+              {props.nav.map((item, index) => renderNavItem(item, index))}
             </nav>
           </div>
         ) : (
@@ -154,7 +164,7 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
             )}
 
             <nav className={`flex flex-wrap items-center justify-center gap-6 text-xs ${mutedText} md:text-sm`}>
-              {props.nav.map(renderNavItem)}
+              {props.nav.map((item, index) => renderNavItem(item, index))}
             </nav>
 
             {CtaButton}
