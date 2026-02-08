@@ -52,8 +52,6 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
       "v4-split-tagline",
       "v5-minimal",
       "v6-glass",
-      "v7-dark",
-      "v8-transparent",
       "v9-bordered",
       "v10-announcement",
     ],
