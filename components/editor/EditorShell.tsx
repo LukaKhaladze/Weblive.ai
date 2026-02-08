@@ -11,11 +11,11 @@ import {
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import SectionFrame from "@/components/editor/SectionFrame";
 import SeoPanel from "@/components/editor/SeoPanel";
-import { renderWidget, WidgetType } from "@/widgets/registry";
+import { renderWidget, widgetRegistry, WidgetType } from "@/widgets/registry";
 import { Site, SeoPayload, WizardInput } from "@/lib/schema";
 import { updateByPath } from "@/lib/deepUpdate";
 
-const tabs = ["გვერდები", "თემა", "SEO"] as const;
+const tabs = ["გვერდები", "თემა", "SEO", "ვიჯეტები"] as const;
 
 export default function EditorShell({
   project,
@@ -363,6 +363,30 @@ export default function EditorShell({
           )}
 
           {selectedTab === "SEO" && <SeoPanel seo={seo} />}
+
+          {selectedTab === "ვიჯეტები" && (
+            <div className="space-y-4 text-sm">
+              <p className="text-white/70">
+                ქვემოთ არის ყველა არსებული ვიჯეტი. ეს სია არის მხოლოდ სანახავად.
+              </p>
+              <div className="space-y-2">
+                {Object.values(widgetRegistry).map((widget) => (
+                  <div
+                    key={widget.type}
+                    className="rounded-xl border border-white/10 bg-slate-950 px-3 py-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold">{widget.name}</span>
+                      <span className="text-xs text-white/50">{widget.type}</span>
+                    </div>
+                    <div className="mt-1 text-xs text-white/60">
+                      ვარიანტები: {widget.variants.join(", ")}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </aside>
 
         <main>
