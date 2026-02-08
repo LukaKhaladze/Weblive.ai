@@ -1,125 +1,100 @@
-import { NextResponse } from "next/server";
-import crypto from "crypto";
-import { SeoSchema, SiteSchema, WizardInputSchema } from "@/lib/schema";
-import { generateEditToken, generateShareSlug } from "@/lib/tokens";
-import { getSupabaseServer } from "@/lib/supabaseServer";
+import { WizardInput, Site, SeoPayload } from "@/lib/schema";
 import { generateWithAiStub } from "@/lib/generator/aiStub";
 
 const OPENAI_MODEL = "gpt-4o-mini";
 const OPENAI_IMAGE_MODEL = "gpt-image-1";
 const MAX_GENERATED_IMAGES = 2;
 
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 5;
-const rateLimitStore = new Map<string, { count: number; start: number }>();
+async function generateImageBase64(prompt: string, apiKey: string) {
+  const response = await fetch("https://api.openai.com/v1/images/generations", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: OPENAI_IMAGE_MODEL,
+      prompt,
+      size: "1536x1024",
+    }),
+  });
 
-function checkRateLimit(ip: string) {
-  const now = Date.now();
-  const entry = rateLimitStore.get(ip);
-  if (!entry || now - entry.start > RATE_LIMIT_WINDOW_MS) {
-    rateLimitStore.set(ip, { count: 1, start: now });
-    return true;
+  if (!response.ok) {
+    return null;
   }
-  if (entry.count >= RATE_LIMIT_MAX) {
-    return false;
-  }
-  entry.count += 1;
-  rateLimitStore.set(ip, entry);
-  return true;
+
+  const data = await response.json();
+  return data?.data?.[0]?.b64_json || null;
 }
 
-export async function POST(req: Request) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (!checkRateLimit(ip)) {
-    return NextResponse.json({ error: "Rate limit exceeded." }, { status: 429 });
-  }
+async function applyGeneratedImages(
+  site: Site,
+  projectId: string,
+  apiKey: string,
+  supabaseServer: any,
+  input: WizardInput
+) {
+  let generated = 0;
+  const pages = site.pages.map((page) => ({
+    ...page,
+    sections: page.sections.map((section) => ({ ...section })),
+  }));
 
-  const body = await req.json();
-  const parsed = WizardInputSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
-  }
+  for (const page of pages) {
+    for (const section of page.sections) {
+      if (generated >= MAX_GENERATED_IMAGES) break;
+      const image = (section.props as any)?.image;
+      if (!image || typeof image.src !== "string") continue;
+      if (!image.src.startsWith("/placeholders")) continue;
 
-  const input = parsed.data;
-  const editToken = generateEditToken();
-  const shareSlug = generateShareSlug();
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      const prompt = [
+        "Create a high-quality, realistic website hero image for a business.",
+        `Business name: ${input.businessName}.`,
+        `Category: ${input.category}.`,
+        `Description: ${input.description}.`,
+        "Style: clean, modern, professional, no text overlays.",
+      ].join(" ");
 
-  async function generateImageBase64(prompt: string, apiKey: string) {
-    const response = await fetch("https://api.openai.com/v1/images/generations", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: OPENAI_IMAGE_MODEL,
-        prompt,
-        size: "1536x1024",
-      }),
-    });
+      const base64 = await generateImageBase64(prompt, apiKey);
+      if (!base64) continue;
 
-    if (!response.ok) {
-      return null;
+      const buffer = Buffer.from(base64, "base64");
+      const path = `${projectId}/images/${section.id}.png`;
+      const upload = await supabaseServer.storage
+        .from("weblive-assets")
+        .upload(path, buffer, { contentType: "image/png", upsert: true });
+      if (upload.error) continue;
+
+      const { data: signed } = await supabaseServer.storage
+        .from("weblive-assets")
+        .createSignedUrl(path, 60 * 60 * 24 * 7);
+
+      (section.props as any) = {
+        ...section.props,
+        image: {
+          ...image,
+          src: signed?.signedUrl || image.src,
+          alt: image.alt || `${input.businessName} ვიზუალური`,
+        },
+      };
+      generated += 1;
     }
-
-    const data = await response.json();
-    return data?.data?.[0]?.b64_json || null;
   }
 
-  async function applyGeneratedImages(site: any, projectId: string, apiKey: string, supabaseServer: any) {
-    let generated = 0;
-    const pages = site.pages.map((page: any) => ({
-      ...page,
-      sections: page.sections.map((section: any) => ({ ...section })),
-    }));
+  return { ...site, pages } as Site;
+}
 
-    for (const page of pages) {
-      for (const section of page.sections) {
-        if (generated >= MAX_GENERATED_IMAGES) break;
-        const image = section.props?.image;
-        if (!image || typeof image.src !== "string") continue;
-        if (!image.src.startsWith("/placeholders")) continue;
-
-        const prompt = [
-          "Create a high-quality, realistic website hero image for a business.",
-          `Business name: ${input.businessName}.`,
-          `Category: ${input.category}.`,
-          `Description: ${input.description}.`,
-          "Style: clean, modern, professional, no text overlays.",
-        ].join(" ");
-
-        const base64 = await generateImageBase64(prompt, apiKey);
-        if (!base64) continue;
-
-        const buffer = Buffer.from(base64, "base64");
-        const path = `${projectId}/images/${section.id}.png`;
-        const upload = await supabaseServer.storage
-          .from("weblive-assets")
-          .upload(path, buffer, { contentType: "image/png", upsert: true });
-        if (upload.error) continue;
-
-        const { data: signed } = await supabaseServer.storage
-          .from("weblive-assets")
-          .createSignedUrl(path, 60 * 60 * 24 * 7);
-
-        section.props = {
-          ...section.props,
-          image: {
-            ...image,
-            src: signed?.signedUrl || image.src,
-            alt: image.alt || `${input.businessName} ვიზუალური`,
-          },
-        };
-        generated += 1;
-      }
-    }
-
-    return { ...site, pages };
-  }
-
-  let site: unknown;
-  let seo: unknown;
+export async function runGeneration({
+  input,
+  supabaseServer,
+  projectId,
+}: {
+  input: WizardInput;
+  supabaseServer: any;
+  projectId: string;
+}): Promise<{ site: Site; seo: SeoPayload }> {
+  let site: Site | null = null;
+  let seo: SeoPayload | null = null;
 
   try {
     const apiKey = process.env.OPENAI_API_KEY;
@@ -240,8 +215,8 @@ export async function POST(req: Request) {
                 type: "text",
                 text:
                   "You are an AI website planner. Return ONLY structured JSON that matches the provided schema. " +
-                  "Write all copy in Georgian. Use only the provided widget types and variants. " +
-                  "Create a unique layout each time with different section order and variants. No HTML.",
+                  "Write all copy in Georgian. Create a unique layout each time with different section order " +
+                  "and variants. Use only the existing widget types/variants. No HTML.",
               },
             ],
           },
@@ -289,52 +264,16 @@ export async function POST(req: Request) {
     seo = fallback.seo;
   }
 
-  const siteParsed = SiteSchema.safeParse(site);
-  const seoParsed = SeoSchema.safeParse(seo);
-  if (!siteParsed.success || !seoParsed.success) {
-    return NextResponse.json({ error: "Generator output invalid." }, { status: 500 });
+  if (!site || !seo) {
+    const fallback = await generateWithAiStub(input);
+    site = fallback.site;
+    seo = fallback.seo;
   }
 
-  let supabaseServer;
-  try {
-    supabaseServer = getSupabaseServer();
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Supabase env vars missing" },
-      { status: 500 }
-    );
-  }
-
-  const projectId = crypto.randomUUID();
   const apiKey = process.env.OPENAI_API_KEY;
-  const siteWithImages =
-    apiKey && siteParsed.data
-      ? await applyGeneratedImages(siteParsed.data, projectId, apiKey, supabaseServer)
-      : siteParsed.data;
-
-  const { data, error } = await supabaseServer
-    .from("projects")
-    .insert({
-      id: projectId,
-      edit_token: editToken,
-      share_slug: shareSlug,
-      expires_at: expiresAt.toISOString(),
-      input,
-      site: siteWithImages,
-      seo: seoParsed.data,
-      status: "generated",
-    })
-    .select()
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (apiKey) {
+    site = await applyGeneratedImages(site, projectId, apiKey, supabaseServer, input);
   }
 
-  return NextResponse.json({
-    id: data.id,
-    edit_token: editToken,
-    share_slug: shareSlug,
-    expires_at: data.expires_at,
-  });
+  return { site, seo };
 }

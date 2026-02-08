@@ -46,6 +46,7 @@ export default function EditorShell({
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
   const [styleBreakpoint, setStyleBreakpoint] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [selectedElementPath, setSelectedElementPath] = useState<string | null>(null);
+  const [regenerating, setRegenerating] = useState(false);
   const sensors = useSensors(useSensor(PointerSensor));
 
   const currentPage = useMemo(
@@ -191,6 +192,27 @@ export default function EditorShell({
     URL.revokeObjectURL(url);
   }
 
+  async function handleRegenerate() {
+    if (regenerating) return;
+    setRegenerating(true);
+    try {
+      const res = await fetch(`/api/regenerate/${project.edit_token}`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || "გენერაცია ვერ შესრულდა.");
+      }
+      setSite(data.site);
+      setSeo(data.seo);
+      setInput(data.input);
+      setSelectedPageId(data.site.pages[0]?.id);
+      setSelectedSectionId(data.site.pages[0]?.sections[0]?.id || null);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "გენერაცია ვერ შესრულდა.");
+    } finally {
+      setRegenerating(false);
+    }
+  }
+
   const expiresAt = new Date(project.expires_at).toLocaleDateString("ka-GE", {
     year: "numeric",
     month: "long",
@@ -219,6 +241,13 @@ export default function EditorShell({
               onClick={() => setViewMode(viewMode === "desktop" ? "mobile" : "desktop")}
             >
               {viewMode === "desktop" ? "მობილური" : "დესკტოპი"}
+            </button>
+            <button
+              className="rounded-full border border-white/20 px-4 py-2 text-sm"
+              onClick={handleRegenerate}
+              disabled={regenerating}
+            >
+              {regenerating ? "მზადდება..." : "ხელახლა გენერაცია"}
             </button>
             <button
               className="rounded-full border border-white/20 px-4 py-2 text-sm"

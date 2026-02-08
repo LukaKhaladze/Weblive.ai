@@ -294,7 +294,7 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
     tags: [...businessTags, "products", "ecommerce"],
     variants: ["cards"],
     defaultProps: (input, index) => ({
-      title: "პროდუქტის კატეგორიები",
+      title: "პროდუქტები",
       items: [
         {
           title: "პროდუქტის სახელი",
