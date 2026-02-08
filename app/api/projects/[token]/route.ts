@@ -22,6 +22,20 @@ export async function GET(_: Request, { params }: { params: { token: string } })
     return NextResponse.json({ error: "Expired" }, { status: 410 });
   }
 
+  if (data?.input?.logoUrl && data.site) {
+    data.site = {
+      ...data.site,
+      pages: data.site.pages.map((page: any) => ({
+        ...page,
+        sections: page.sections.map((section: any) =>
+          section.widget === "header"
+            ? { ...section, props: { ...section.props, logo: data.input.logoUrl } }
+            : section
+        ),
+      })),
+    };
+  }
+
   return NextResponse.json(data);
 }
 

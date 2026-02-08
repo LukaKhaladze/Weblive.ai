@@ -520,13 +520,15 @@ export default function EditorShell({
                                 "--radius": `${site.theme.radius}px`,
                               } as React.CSSProperties}
                             >
-                              {renderWidget(
-                                widget.type as WidgetType,
-                                variant,
-                                headerSample || widget.defaultProps(input, 0),
-                                site.theme,
-                                false
-                              )}
+                          {renderWidget(
+                            widget.type as WidgetType,
+                            variant,
+                            headerSample
+                              ? { ...headerSample, logo: input.logoUrl || headerSample.logo || "" }
+                              : widget.defaultProps(input, 0),
+                            site.theme,
+                            false
+                          )}
                             </div>
                           </div>
                           );
@@ -634,7 +636,9 @@ export default function EditorShell({
                               renderWidget(
                                 section.widget as WidgetType,
                                 section.variant,
-                                section.props,
+                                section.widget === "header"
+                                  ? { ...section.props, logo: input.logoUrl || section.props?.logo || "" }
+                                  : section.props,
                                 site.theme,
                                 isSelected,
                                 (path, value) => {
