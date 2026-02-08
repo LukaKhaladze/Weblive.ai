@@ -35,7 +35,14 @@ export default function EditorShell({
   const [site, setSite] = useState<Site>(project.site);
   const [seo, setSeo] = useState<SeoPayload>(project.seo);
   const [input, setInput] = useState<WizardInput>(project.input);
-  const resolvedLogoUrl = input.logoUrl || project.input.logoUrl || "";
+  const headerLogoFromSite = useMemo(
+    () =>
+      site.pages
+        .flatMap((page) => page.sections)
+        .find((section) => section.widget === "header")?.props?.logo || "",
+    [site.pages]
+  );
+  const resolvedLogoUrl = input.logoUrl || headerLogoFromSite || project.input.logoUrl || "";
   const [selectedTab, setSelectedTab] = useState<(typeof tabs)[number]>("გვერდები");
   const [selectedPageId, setSelectedPageId] = useState(site.pages[0]?.id);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
@@ -75,30 +82,26 @@ export default function EditorShell({
   }, [currentPage, selectedSection]);
 
   useEffect(() => {
-    if (input.logoUrl) return;
-    const headerLogo =
-      site.pages
-        .flatMap((page) => page.sections)
-        .find((section) => section.widget === "header")?.props?.logo || "";
-    if (headerLogo) {
-      setInput((prev) => (prev.logoUrl ? prev : { ...prev, logoUrl: headerLogo }));
+    if (!resolvedLogoUrl) return;
+    if (input.logoUrl !== resolvedLogoUrl) {
+      setInput((prev) => ({ ...prev, logoUrl: resolvedLogoUrl }));
     }
-  }, [input.logoUrl, site.pages]);
+  }, [resolvedLogoUrl, input.logoUrl]);
 
   useEffect(() => {
-    if (!input.logoUrl) return;
+    if (!resolvedLogoUrl) return;
     setSite((prev) => ({
       ...prev,
       pages: prev.pages.map((page) => ({
         ...page,
         sections: page.sections.map((section) =>
           section.widget === "header"
-            ? { ...section, props: { ...section.props, logo: input.logoUrl } }
+            ? { ...section, props: { ...section.props, logo: resolvedLogoUrl } }
             : section
         ),
       })),
     }));
-  }, [input.logoUrl]);
+  }, [resolvedLogoUrl]);
 
   useEffect(() => {
     if (!site.pages.length) return;
