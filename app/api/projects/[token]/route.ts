@@ -52,6 +52,27 @@ export async function PUT(req: Request, { params }: { params: { token: string } 
     updates.seo = parsedSeo.data;
   }
 
+  if (updates.input?.logoUrl && !updates.site) {
+    const { data: existing } = await supabaseServer
+      .from("projects")
+      .select("site")
+      .eq("edit_token", params.token)
+      .single();
+    if (existing?.site) {
+      updates.site = {
+        ...existing.site,
+        pages: existing.site.pages.map((page: any) => ({
+          ...page,
+          sections: page.sections.map((section: any) =>
+            section.widget === "header"
+              ? { ...section, props: { ...section.props, logo: updates.input.logoUrl } }
+              : section
+          ),
+        })),
+      };
+    }
+  }
+
   updates.updated_at = new Date().toISOString();
 
   const { data, error } = await supabaseServer
