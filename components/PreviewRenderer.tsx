@@ -12,7 +12,7 @@ export default function PreviewRenderer({
   if (!page) return null;
   return (
     <div
-      className="w-full max-w-full rounded-[32px] border border-slate-200 bg-white"
+      className="w-full max-w-full bg-white"
       style={{
         "--primary": site.theme.primaryColor,
         "--secondary": site.theme.secondaryColor,

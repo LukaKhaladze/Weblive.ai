@@ -351,7 +351,7 @@ export default function EditorShell({
       </div>
 
       <div className="mx-auto grid max-w-7xl grid-cols-[280px_1fr] gap-6 px-6 py-6">
-        <aside className="space-y-6 rounded-[28px] border border-white/10 bg-slate-900 p-5 text-white">
+        <aside className="space-y-6 bg-slate-900 p-5 text-white">
           <a
             href="/rules"
             className="rounded-full border border-white/20 px-4 py-2 text-xs text-white/70"
@@ -516,7 +516,7 @@ export default function EditorShell({
                     {category}
                   </div>
                   {widgets.map((widget) => (
-                    <div key={widget.type} className="rounded-[28px] border border-white/10 bg-slate-900 p-6">
+                    <div key={widget.type} className="bg-slate-900 p-6">
                       <div className="flex items-center justify-between text-white">
                         <div>
                           <h3 className="text-lg font-semibold">{widget.name}</h3>
@@ -532,8 +532,8 @@ export default function EditorShell({
                                   .find((section) => section.widget === "header")?.props
                               : null;
                           return (
-                          <div key={`${widget.type}-${variant}`} className="rounded-[24px] border border-white/10 bg-white">
-                            <div className="border-b border-slate-200 px-4 py-2 text-xs text-slate-500">
+                          <div key={`${widget.type}-${variant}`} className="bg-white">
+                            <div className="border-b border-slate-100 px-4 py-2 text-xs text-slate-500">
                               ვარიანტი: {variant}
                             </div>
                             <div
@@ -565,9 +565,7 @@ export default function EditorShell({
             </div>
           ) : (
             <div
-              className={`rounded-[32px] border border-slate-200 bg-white ${
-                viewMode === "mobile" ? "mx-auto max-w-[420px]" : ""
-              }`}
+              className={`bg-white ${viewMode === "mobile" ? "mx-auto max-w-[420px]" : ""}`}
               style={{
                 "--primary": site.theme.primaryColor,
                 "--secondary": site.theme.secondaryColor,
