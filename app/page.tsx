@@ -37,7 +37,7 @@ export default function HomePage() {
           {variants.map((variant, index) => (
             <section key={variant} className="space-y-4">
               <div>
-                <p className="text-sm font-semibold">Header v{index + 1}</p>
+                <p className="text-sm font-semibold">ვერსია {index + 1}</p>
                 <p className="text-xs text-neutral-500">{variant}</p>
               </div>
               <Header
