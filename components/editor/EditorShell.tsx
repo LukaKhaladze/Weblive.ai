@@ -236,6 +236,29 @@ export default function EditorShell({
     }));
   }
 
+  function updateHeaderCta(next: { label?: string; href?: string }) {
+    setSite((prev) => ({
+      ...prev,
+      pages: prev.pages.map((page) => ({
+        ...page,
+        sections: page.sections.map((section) =>
+          section.widget === "header"
+            ? {
+                ...section,
+                props: {
+                  ...section.props,
+                  cta: {
+                    label: next.label ?? section.props?.cta?.label ?? "დაწყება",
+                    href: next.href ?? section.props?.cta?.href ?? "#contact",
+                  },
+                },
+              }
+            : section
+        ),
+      })),
+    }));
+  }
+
   const expiresAt = new Date(project.expires_at).toLocaleDateString("ka-GE", {
     year: "numeric",
     month: "long",
@@ -385,6 +408,28 @@ export default function EditorShell({
                   }
                 />
               </label>
+              <label className="block">
+                CTA ტექსტი
+                <input
+                  className="mt-2 w-full rounded-xl border border-white/20 bg-transparent p-2 text-xs text-white"
+                  value={
+                    (site.pages[0]?.sections.find((section) => section.widget === "header")?.props
+                      ?.cta?.label as string) || "დაწყება"
+                  }
+                  onChange={(event) => updateHeaderCta({ label: event.target.value })}
+                />
+              </label>
+              <label className="block">
+                CTA ბმული
+                <input
+                  className="mt-2 w-full rounded-xl border border-white/20 bg-transparent p-2 text-xs text-white"
+                  value={
+                    (site.pages[0]?.sections.find((section) => section.widget === "header")?.props
+                      ?.cta?.href as string) || "#contact"
+                  }
+                  onChange={(event) => updateHeaderCta({ href: event.target.value })}
+                />
+              </label>
             </div>
           )}
 
@@ -422,7 +467,14 @@ export default function EditorShell({
                         <span className="text-xs text-white/50">{widget.type}</span>
                       </div>
                       <div className="mt-6 space-y-6">
-                        {widget.variants.map((variant) => (
+                        {widget.variants.map((variant) => {
+                          const headerSample =
+                            widget.type === "header"
+                              ? site.pages
+                                  .flatMap((page) => page.sections)
+                                  .find((section) => section.widget === "header")?.props
+                              : null;
+                          return (
                           <div key={`${widget.type}-${variant}`} className="rounded-[24px] border border-white/10 bg-white">
                             <div className="border-b border-slate-200 px-4 py-2 text-xs text-slate-500">
                               ვარიანტი: {variant}
@@ -438,13 +490,14 @@ export default function EditorShell({
                               {renderWidget(
                                 widget.type as WidgetType,
                                 variant,
-                                widget.defaultProps(input, 0),
+                                headerSample || widget.defaultProps(input, 0),
                                 site.theme,
                                 false
                               )}
                             </div>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   ))}
