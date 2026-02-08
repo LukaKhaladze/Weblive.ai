@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { getSupabaseServer } from "@/lib/supabaseServer";
 
 export async function POST(req: Request) {
   const form = await req.formData();
-  const supabaseServer = getSupabaseServer();
+  let supabaseServer;
+  try {
+    supabaseServer = getSupabaseServer();
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Supabase env vars missing" },
+      { status: 500 }
+    );
+  }
   const file = form.get("file");
   const projectId = form.get("projectId");
   const type = form.get("type");
