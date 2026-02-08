@@ -521,7 +521,7 @@ export default function EditorShell({
                           return (
                           <div key={`${widget.type}-${variant}`} className="bg-white">
                             <div className="border-b border-slate-100 px-4 py-2 text-xs text-slate-500">
-                              ვარიანტი: {variant}
+                              {widget.variantLabels?.[variant] || variant}
                             </div>
                             <div
                               className="p-4"
@@ -674,6 +674,8 @@ export default function EditorShell({
                                     }
                                   }
                                 }
+                              ,
+                                section.widget === "header" ? handleLogoUpload : undefined
                               )
                             )}
                           </div>

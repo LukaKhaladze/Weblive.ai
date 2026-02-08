@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRef } from "react";
 import { Theme } from "@/lib/schema";
 import EditableText from "@/components/EditableText";
 
@@ -15,9 +16,10 @@ type HeaderProps = {
   theme: Theme;
   editable?: boolean;
   onEdit?: (path: string, value: any) => void;
+  onLogoUpload?: (file: File) => void;
 };
 
-export default function Header({ variant, props, editable, onEdit }: HeaderProps) {
+export default function Header({ variant, props, editable, onEdit, onLogoUpload }: HeaderProps) {
   const textStyles = (props as any)._textStyles || {};
   const styleFor = (path: string) => textStyles[path];
   const isDark = variant === "v7-dark";
@@ -35,10 +37,9 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
 
   const frameClasses = [
     "rounded-[18px]",
-    "shadow-sm",
     isTransparent ? "bg-transparent" : "bg-white",
     isDark ? "bg-neutral-900" : "",
-    isGlass ? "bg-white/70 backdrop-blur-md shadow-lg" : "",
+    isGlass ? "bg-white/70 backdrop-blur-md" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -76,47 +77,48 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
   };
 
   const logoSrc = (props.logo || "").trim();
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
+
   const LogoBlock = (
     <div className="flex items-center gap-3">
-      {logoSrc ? (
-        <button
-          type="button"
-          className="inline-flex"
-          onClick={() => {
-            if (!editable || !onEdit) return;
-            const next = window.prompt("შეიყვანე ლოგოს ბმული", logoSrc);
-            if (next && next.trim()) {
-              onEdit("logo", next.trim());
-            }
-          }}
-        >
+      <button
+        type="button"
+        className="inline-flex items-center gap-3"
+        onClick={() => {
+          if (!editable || !onLogoUpload) return;
+          logoInputRef.current?.click();
+        }}
+      >
+        {logoSrc ? (
           <img
             src={logoSrc}
             alt={`${props.brand} logo`}
             className="h-10 w-10 rounded-xl object-contain"
           />
-        </button>
-      ) : editable && onEdit ? (
-        <button
-          type="button"
-          className="text-left"
-          onClick={() => {
-            const next = window.prompt("შეიყვანე ლოგოს ბმული", "");
-            if (next && next.trim()) {
-              onEdit("logo", next.trim());
-            }
-          }}
-        >
+        ) : (
           <EditableText
             as="span"
             className={`font-semibold text-lg tracking-tight ${baseText}`}
             value={props.brand}
-            onChange={(value) => onEdit("brand", value)}
+            onChange={(value) => onEdit?.("brand", value)}
             responsiveStyle={styleFor("brand")}
           />
-        </button>
-      ) : (
-        <span className={`font-semibold text-lg tracking-tight ${baseText}`}>{props.brand}</span>
+        )}
+      </button>
+      {editable && onLogoUpload && (
+        <input
+          ref={logoInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) {
+              onLogoUpload(file);
+            }
+            event.currentTarget.value = "";
+          }}
+        />
       )}
     </div>
   );

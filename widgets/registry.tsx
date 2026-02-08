@@ -28,6 +28,7 @@ export type WidgetDefinition = {
   category: WidgetCategory;
   tags: string[];
   variants: string[];
+  variantLabels?: Record<string, string>;
   defaultProps: (input: WizardInput, index: number) => Record<string, any>;
   editable: EditableField[];
   Component: (props: {
@@ -36,6 +37,7 @@ export type WidgetDefinition = {
     theme: Theme;
     editable?: boolean;
     onEdit?: (path: string, value: any) => void;
+    onLogoUpload?: (file: File) => void;
   }) => JSX.Element;
 };
 
@@ -53,6 +55,14 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
       "v9-bordered",
       "v10-announcement",
     ],
+    variantLabels: {
+      "v1-classic": "ვერსია 1",
+      "v2-compact-right": "ვერსია 2",
+      "v3-centered-logo": "ვერსია 3",
+      "v6-glass": "ვერსია 4",
+      "v9-bordered": "ვერსია 5",
+      "v10-announcement": "ვერსია 6",
+    },
     defaultProps: (input) => ({
       brand: input.businessName,
       nav: [
@@ -87,7 +97,8 @@ export function renderWidget(
   props: any,
   theme: Theme,
   editable?: boolean,
-  onEdit?: (path: string, value: any) => void
+  onEdit?: (path: string, value: any) => void,
+  onLogoUpload?: (file: File) => void
 ) {
   const WidgetComponent = widgetRegistry[widgetType]?.Component;
   if (!WidgetComponent) {
@@ -100,6 +111,7 @@ export function renderWidget(
       theme={theme}
       editable={editable}
       onEdit={onEdit}
+      onLogoUpload={onLogoUpload}
     />
   );
 }
