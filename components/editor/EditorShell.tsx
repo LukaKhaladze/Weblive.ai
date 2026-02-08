@@ -532,23 +532,30 @@ export default function EditorShell({
                                 </button>
                               </div>
                               {availableVariants.length > 1 && (
-                                <button
-                                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs"
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    const currentIndex = availableVariants.indexOf(section.variant);
-                                    const nextIndex =
-                                      currentIndex === -1
-                                        ? 0
-                                        : (currentIndex + 1) % availableVariants.length;
-                                    updateSection(section.id, (sectionData) => ({
-                                      ...sectionData,
-                                      variant: availableVariants[nextIndex],
-                                    }));
-                                  }}
-                                >
-                                  დიზაინის შეცვლა
-                                </button>
+                                <label className="flex items-center gap-2 whitespace-nowrap">
+                                  დიზაინი
+                                  <select
+                                    className="rounded-full border border-slate-200 bg-white px-2 py-1"
+                                    value={
+                                      availableVariants.includes(section.variant)
+                                        ? section.variant
+                                        : availableVariants[0]
+                                    }
+                                    onChange={(event) => {
+                                      event.stopPropagation();
+                                      updateSection(section.id, (sectionData) => ({
+                                        ...sectionData,
+                                        variant: event.target.value,
+                                      }));
+                                    }}
+                                  >
+                                    {availableVariants.map((variant) => (
+                                      <option key={variant} value={variant}>
+                                        {variant}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </label>
                               )}
                               <label className="flex items-center gap-2 whitespace-nowrap">
                                 ფონი
