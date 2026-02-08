@@ -1,0 +1,25 @@
+import { WizardInput, Site } from "@/lib/schema";
+import { createWidgetProps, widgetRegistry } from "@/widgets/registry";
+
+export function ensureHeaderOnly(site: Site, input: WizardInput): Site {
+  const headerVariants = widgetRegistry.header.variants;
+  const pickVariant = () =>
+    headerVariants[Math.floor(Math.random() * headerVariants.length)] || "v1-classic";
+
+  const pages = site.pages.map((page, index) => {
+    const headerSection = page.sections.find((section) => section.widget === "header");
+    const nextHeader = headerSection || {
+      id: `sec_header_${index}_${Math.random().toString(36).slice(2, 6)}`,
+      widget: "header",
+      variant: pickVariant(),
+      props: createWidgetProps("header", input, 0),
+    };
+
+    return {
+      ...page,
+      sections: [nextHeader],
+    };
+  });
+
+  return { ...site, pages };
+}

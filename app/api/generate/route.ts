@@ -4,6 +4,7 @@ import { SeoSchema, SiteSchema, WizardInputSchema } from "@/lib/schema";
 import { generateEditToken, generateShareSlug } from "@/lib/tokens";
 import { getSupabaseServer } from "@/lib/supabaseServer";
 import { generateWithAiStub } from "@/lib/generator/aiStub";
+import { ensureHeaderOnly } from "@/lib/generator/ensureHeaderOnly";
 
 const OPENAI_MODEL = "gpt-4o-mini";
 const OPENAI_IMAGE_MODEL = "gpt-image-1";
@@ -294,6 +295,7 @@ export async function POST(req: Request) {
   if (!siteParsed.success || !seoParsed.success) {
     return NextResponse.json({ error: "Generator output invalid." }, { status: 500 });
   }
+  const normalizedSite = ensureHeaderOnly(siteParsed.data, input);
 
   let supabaseServer;
   try {
@@ -307,10 +309,9 @@ export async function POST(req: Request) {
 
   const projectId = crypto.randomUUID();
   const apiKey = process.env.OPENAI_API_KEY;
-  const siteWithImages =
-    apiKey && siteParsed.data
-      ? await applyGeneratedImages(siteParsed.data, projectId, apiKey, supabaseServer)
-      : siteParsed.data;
+  const siteWithImages = apiKey
+    ? await applyGeneratedImages(normalizedSite, projectId, apiKey, supabaseServer)
+    : normalizedSite;
 
   const { data, error } = await supabaseServer
     .from("projects")

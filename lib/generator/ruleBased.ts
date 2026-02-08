@@ -21,27 +21,8 @@ function createRng(seed?: number) {
   return mulberry32(seed ?? fallback);
 }
 
-function shuffle<T>(items: T[], rng: () => number) {
-  const copy = [...items];
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(rng() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-
 function pick<T>(items: T[], rng: () => number) {
   return items[Math.floor(rng() * items.length)];
-}
-
-function pickUnique<T>(items: T[], count: number, rng: () => number) {
-  const pool = [...items];
-  const result: T[] = [];
-  while (pool.length && result.length < count) {
-    const index = Math.floor(rng() * pool.length);
-    result.push(pool.splice(index, 1)[0]);
-  }
-  return result;
 }
 
 function createSectionId(index: number) {
@@ -89,41 +70,14 @@ export function generateRuleBasedSite(
     buttonStyle: pick(buttonOptions, rng),
   };
 
-  const optionalSections: Record<string, WidgetType[]> = {
-    clinic: ["team", "pricing", "logosStrip", "blogPreview"],
-    lawyer: ["logosStrip", "pricing", "features", "team"],
-    ecommerce: ["productGrid", "logosStrip", "blogPreview", "features"],
-    restaurant: ["team", "faq", "logosStrip", "pricing"],
-    agency: ["blogPreview", "pricing", "faq", "team"],
-    generic: ["logosStrip", "pricing", "faq", "team"],
-  };
-
-  function buildSections(base: WidgetType[], pageId: string): WidgetType[] {
-    const header: WidgetType[] = base.includes("header") ? ["header"] : [];
-    const footer: WidgetType[] = base.includes("footer") ? ["footer"] : [];
-    const hero: WidgetType[] = base.includes("hero") ? ["hero"] : [];
-    const middle: WidgetType[] = base.filter(
-      (item) => item !== "header" && item !== "footer" && item !== "hero"
-    );
-    let randomized: WidgetType[] = shuffle(middle, rng);
-
-    const extrasPool: WidgetType[] = (
-      optionalSections[input.category] || optionalSections.generic
-    ).filter((item) => !base.includes(item));
-    const addCount = pageId === "home" ? (rng() > 0.4 ? 2 : 1) : rng() > 0.75 ? 1 : 0;
-    const extras: WidgetType[] = pickUnique(extrasPool, addCount, rng);
-    extras.forEach((extra) => {
-      const index = Math.floor(rng() * (randomized.length + 1));
-      randomized.splice(index, 0, extra);
-    });
-
-    return [...header, ...hero, ...randomized, ...footer];
+  function buildSections(base: WidgetType[]): WidgetType[] {
+    return base.includes("header") ? ["header"] : [];
   }
 
   const pages = recipe.pages
     .filter((page) => input.pages.includes(page.id))
     .map((page, pageIndex) => {
-      const baseSections = buildSections(page.sections, page.id);
+      const baseSections = buildSections(page.sections);
       const sections = baseSections.map((widgetType, sectionIndex) => {
         const widget = widgetRegistry[widgetType];
         const variant = widget?.variants?.length

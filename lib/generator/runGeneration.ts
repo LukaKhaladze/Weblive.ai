@@ -1,5 +1,6 @@
 import { WizardInput, Site, SeoPayload } from "@/lib/schema";
 import { generateWithAiStub } from "@/lib/generator/aiStub";
+import { ensureHeaderOnly } from "@/lib/generator/ensureHeaderOnly";
 
 const OPENAI_MODEL = "gpt-4o-mini";
 const OPENAI_IMAGE_MODEL = "gpt-image-1";
@@ -269,6 +270,8 @@ export async function runGeneration({
     site = fallback.site;
     seo = fallback.seo;
   }
+
+  site = ensureHeaderOnly(site, input);
 
   const apiKey = process.env.OPENAI_API_KEY;
   if (apiKey) {

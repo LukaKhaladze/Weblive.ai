@@ -13,6 +13,7 @@ export default function SectionFrame({
   onMoveUp,
   onMoveDown,
   toolbar,
+  disableControls = false,
 }: {
   id: string;
   children: React.ReactNode;
@@ -23,6 +24,7 @@ export default function SectionFrame({
   onMoveUp: () => void;
   onMoveDown: () => void;
   toolbar?: React.ReactNode;
+  disableControls?: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
   const style = {
@@ -40,6 +42,7 @@ export default function SectionFrame({
       className={`relative rounded-[28px] border ${selected ? "border-[color:var(--primary)]" : "border-transparent"} group`}
       onClick={onSelect}
     >
+      {!disableControls && (
       <div className="absolute right-3 top-3 z-10 flex gap-2 opacity-0 transition group-hover:opacity-100">
         <button
           className={iconBtn}
@@ -98,17 +101,20 @@ export default function SectionFrame({
           </svg>
         </button>
       </div>
-      <div
-        className="absolute left-3 top-3 z-10 cursor-grab rounded-full border border-slate-200 bg-white p-2 text-slate-600"
-        {...attributes}
-        {...listeners}
-        aria-label="Drag"
-        title="Drag"
-      >
-        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M5 9h14M5 15h14" />
-        </svg>
-      </div>
+      )}
+      {!disableControls && (
+        <div
+          className="absolute left-3 top-3 z-10 cursor-grab rounded-full border border-slate-200 bg-white p-2 text-slate-600"
+          {...attributes}
+          {...listeners}
+          aria-label="Drag"
+          title="Drag"
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M5 9h14M5 15h14" />
+          </svg>
+        </div>
+      )}
       <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
         {toolbar}
         {children}
