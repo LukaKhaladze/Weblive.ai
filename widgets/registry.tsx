@@ -39,7 +39,7 @@ export type WidgetDefinition = {
     theme: Theme;
     editable?: boolean;
     onEdit?: (path: string, value: any) => void;
-    onLogoUpload?: (file: File) => void;
+    onImageUpload?: (path: string, file: File, kind?: "logo" | "images") => void;
   }) => JSX.Element;
 };
 
