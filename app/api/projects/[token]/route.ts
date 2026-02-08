@@ -65,6 +65,9 @@ export async function PUT(req: Request, { params }: { params: { token: string } 
     }
     updates.seo = parsedSeo.data;
   }
+  if (typeof body.status === "string") {
+    updates.status = body.status;
+  }
 
   const logoFromSite = updates.site
     ? updates.site.pages
