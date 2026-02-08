@@ -98,18 +98,20 @@ export function generateRuleBasedSite(
     generic: ["logosStrip", "pricing", "faq", "team"],
   };
 
-  function buildSections(base: WidgetType[], pageId: string) {
-    const header = base.includes("header") ? ["header"] : [];
-    const footer = base.includes("footer") ? ["footer"] : [];
-    const hero = base.includes("hero") ? ["hero"] : [];
-    const middle = base.filter((item) => item !== "header" && item !== "footer" && item !== "hero");
-    let randomized = shuffle(middle, rng);
-
-    const extrasPool = (optionalSections[input.category] || optionalSections.generic).filter(
-      (item) => !base.includes(item)
+  function buildSections(base: WidgetType[], pageId: string): WidgetType[] {
+    const header: WidgetType[] = base.includes("header") ? ["header"] : [];
+    const footer: WidgetType[] = base.includes("footer") ? ["footer"] : [];
+    const hero: WidgetType[] = base.includes("hero") ? ["hero"] : [];
+    const middle: WidgetType[] = base.filter(
+      (item) => item !== "header" && item !== "footer" && item !== "hero"
     );
+    let randomized: WidgetType[] = shuffle(middle, rng);
+
+    const extrasPool: WidgetType[] = (
+      optionalSections[input.category] || optionalSections.generic
+    ).filter((item) => !base.includes(item));
     const addCount = pageId === "home" ? (rng() > 0.4 ? 2 : 1) : rng() > 0.75 ? 1 : 0;
-    const extras = pickUnique(extrasPool, addCount, rng);
+    const extras: WidgetType[] = pickUnique(extrasPool, addCount, rng);
     extras.forEach((extra) => {
       const index = Math.floor(rng() * (randomized.length + 1));
       randomized.splice(index, 0, extra);
