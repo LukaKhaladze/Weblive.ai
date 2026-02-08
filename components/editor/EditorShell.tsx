@@ -377,28 +377,15 @@ export default function EditorShell({
           {selectedTab === "გვერდები" && (
             <div className="space-y-2 text-sm">
               {site.pages.map((page) => (
-                <div
+                <button
                   key={page.id}
-                  className={`flex items-center gap-2 rounded-xl px-3 py-2 ${
+                  className={`w-full rounded-xl px-3 py-2 text-left ${
                     page.id === currentPage.id ? "bg-white text-slate-900" : "text-white/70"
                   }`}
+                  onClick={() => setSelectedPageId(page.id)}
                 >
-                  <button
-                    className="flex-1 text-left text-sm"
-                    onClick={() => setSelectedPageId(page.id)}
-                  >
-                    {page.name}
-                  </button>
-                  <input
-                    className={`w-28 rounded-full border px-2 py-1 text-xs ${
-                      page.id === currentPage.id
-                        ? "border-slate-200 bg-white text-slate-900"
-                        : "border-white/20 bg-transparent text-white"
-                    }`}
-                    value={page.name}
-                    onChange={(event) => updatePageName(page.id, event.target.value)}
-                  />
-                </div>
+                  {page.name}
+                </button>
               ))}
             </div>
           )}

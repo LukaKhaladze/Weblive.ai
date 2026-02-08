@@ -37,9 +37,8 @@ export default function Header({ variant, props, editable, onEdit }: HeaderProps
     "rounded-[18px]",
     "shadow-sm",
     isTransparent ? "bg-transparent" : "bg-white",
-    isDark ? "bg-neutral-900 border border-neutral-800" : "",
-    isGlass ? "bg-white/70 backdrop-blur-md border border-white/20 shadow-lg" : "",
-    isBordered ? "border-2 border-neutral-900" : "border border-neutral-200",
+    isDark ? "bg-neutral-900" : "",
+    isGlass ? "bg-white/70 backdrop-blur-md shadow-lg" : "",
   ]
     .filter(Boolean)
     .join(" ");
