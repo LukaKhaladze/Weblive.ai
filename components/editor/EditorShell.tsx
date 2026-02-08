@@ -48,6 +48,7 @@ export default function EditorShell({
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     site.pages[0]?.sections[0]?.id || null
   );
+  const [widgetFilter, setWidgetFilter] = useState<"all" | "ecommerce" | "informational">("all");
   const [shareOpen, setShareOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
   const [regenerating, setRegenerating] = useState(false);
@@ -484,6 +485,25 @@ export default function EditorShell({
               <p className="text-white/70">
                 ქვემოთ ხედავთ ყველა ვიჯეტის სრულ ვიზუალურ პრევიუს (ყველა ვარიანტი).
               </p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: "all", label: "ყველა" },
+                  { id: "ecommerce", label: "ელ-კომერცია" },
+                  { id: "informational", label: "საინფორმაციო" },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    className={`rounded-full px-4 py-2 text-xs ${
+                      widgetFilter === item.id
+                        ? "bg-white text-slate-900"
+                        : "border border-white/20 text-white/70"
+                    }`}
+                    onClick={() => setWidgetFilter(item.id as typeof widgetFilter)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </aside>
@@ -492,7 +512,11 @@ export default function EditorShell({
           {selectedTab === "ვიჯეტები" ? (
             <div className="space-y-10">
               {Object.entries(
-                Object.values(widgetRegistry).reduce((acc, widget) => {
+                Object.values(widgetRegistry)
+                  .filter((widget) =>
+                    widgetFilter === "all" ? true : widget.tags.includes(widgetFilter)
+                  )
+                  .reduce((acc, widget) => {
                   acc[widget.category] = acc[widget.category] || [];
                   acc[widget.category].push(widget);
                   return acc;
