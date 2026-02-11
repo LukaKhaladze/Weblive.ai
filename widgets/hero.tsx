@@ -118,14 +118,16 @@ export default function Hero({
         <button
           type="button"
           className="rounded-xl bg-[color:var(--primary)] px-5 py-2.5 text-sm font-semibold text-white"
-          onClick={() => handleCtaClick("ctaPrimary.href", primary.href)}
+          {...(editable ? { onClick: () => handleCtaClick("ctaPrimary.href", primary.href) } : {})}
         >
           {renderText("span", "font-semibold", primary.label, "ctaPrimary.label")}
         </button>
         <button
           type="button"
           className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700"
-          onClick={() => handleCtaClick("ctaSecondary.href", secondary.href)}
+          {...(editable
+            ? { onClick: () => handleCtaClick("ctaSecondary.href", secondary.href) }
+            : {})}
         >
           {renderText("span", "font-semibold", secondary.label, "ctaSecondary.label")}
         </button>
@@ -171,14 +173,18 @@ export default function Hero({
               <button
                 type="button"
                 className="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-slate-900"
-                onClick={() => handleCtaClick("ctaPrimary.href", primary.href)}
+                {...(editable
+                  ? { onClick: () => handleCtaClick("ctaPrimary.href", primary.href) }
+                  : {})}
               >
                 {renderText("span", "font-semibold", primary.label, "ctaPrimary.label")}
               </button>
               <button
                 type="button"
                 className="rounded-xl border border-white/50 px-5 py-2.5 text-sm font-semibold text-white"
-                onClick={() => handleCtaClick("ctaSecondary.href", secondary.href)}
+                {...(editable
+                  ? { onClick: () => handleCtaClick("ctaSecondary.href", secondary.href) }
+                  : {})}
               >
                 {renderText("span", "font-semibold", secondary.label, "ctaSecondary.label")}
               </button>
@@ -257,7 +263,9 @@ export default function Hero({
             <button
               type="button"
               className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white"
-              onClick={() => handleCtaClick("ctaPrimary.href", primary.href)}
+              {...(editable
+                ? { onClick: () => handleCtaClick("ctaPrimary.href", primary.href) }
+                : {})}
             >
               {renderText("span", "font-semibold", primary.label, "ctaPrimary.label")}
             </button>
