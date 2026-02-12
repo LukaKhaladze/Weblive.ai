@@ -13,10 +13,16 @@ const defaultInput: WizardInput = {
   businessName: "",
   category: "ecommerce",
   description: "",
+  productCategories: "",
   services: "",
+  uniqueValue: "",
+  priceRange: "",
   targetAudience: "",
   location: "",
   tone: "",
+  visualStyle: "",
+  imageMood: "",
+  primaryCta: "",
   goal: "calls",
   pages: [...ECOMMERCE_FIXED_PAGES],
   includeProductPage: false,
@@ -200,12 +206,21 @@ export default function BuildPage() {
           {steps[step] === "დეტალები" && (
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <label className="text-sm text-white/70">
-                სერვისები (ჩაწერე მძიმით)
+                პროდუქტის კატეგორიები (ჩაწერე მძიმით)
                 <input
                   className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
-                  value={input.services}
-                  onChange={(event) => setInput({ ...input, services: event.target.value })}
-                  placeholder="თმის მოვლა, მაკიაჟი, მანიკური"
+                  value={input.productCategories || ""}
+                  onChange={(event) => setInput({ ...input, productCategories: event.target.value, services: event.target.value })}
+                  placeholder="სკინქეარი, მაკიაჟი, აქსესუარები"
+                />
+              </label>
+              <label className="text-sm text-white/70">
+                უნიკალური ღირებულება
+                <input
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  value={input.uniqueValue || ""}
+                  onChange={(event) => setInput({ ...input, uniqueValue: event.target.value })}
+                  placeholder="რატომ უნდა აგირჩიონ კონკურენტებთან შედარებით"
                 />
               </label>
               <label className="text-sm text-white/70">
@@ -215,6 +230,15 @@ export default function BuildPage() {
                   value={input.targetAudience}
                   onChange={(event) => setInput({ ...input, targetAudience: event.target.value })}
                   placeholder="ქალები 20-45"
+                />
+              </label>
+              <label className="text-sm text-white/70">
+                ფასის დიაპაზონი
+                <input
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  value={input.priceRange || ""}
+                  onChange={(event) => setInput({ ...input, priceRange: event.target.value })}
+                  placeholder="საშუალო, პრემიუმ, 30-120 ლარი"
                 />
               </label>
               <label className="text-sm text-white/70">
@@ -233,6 +257,33 @@ export default function BuildPage() {
                   value={input.tone}
                   onChange={(event) => setInput({ ...input, tone: event.target.value })}
                   placeholder="ელეგანტური, პრემიუმ"
+                />
+              </label>
+              <label className="text-sm text-white/70">
+                ვიზუალური სტილი
+                <input
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  value={input.visualStyle || ""}
+                  onChange={(event) => setInput({ ...input, visualStyle: event.target.value })}
+                  placeholder="მინიმალისტური, მოდერნი, ბნელი, ნათელი"
+                />
+              </label>
+              <label className="text-sm text-white/70">
+                სურათის განწყობა
+                <input
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  value={input.imageMood || ""}
+                  onChange={(event) => setInput({ ...input, imageMood: event.target.value })}
+                  placeholder="თბილი, ლუქსი, ბუნებრივი განათება"
+                />
+              </label>
+              <label className="text-sm text-white/70 md:col-span-2">
+                მთავარი CTA ტექსტი
+                <input
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-white placeholder-white/40"
+                  value={input.primaryCta || ""}
+                  onChange={(event) => setInput({ ...input, primaryCta: event.target.value })}
+                  placeholder="შეკვეთა ახლავე / დაგვიკავშირდი"
                 />
               </label>
             </div>
@@ -448,6 +499,8 @@ export default function BuildPage() {
                 <p className="text-xs uppercase tracking-[0.3em] text-white/50">შეჯამება</p>
                 <p className="mt-2">{input.businessName}</p>
                 <p>{input.description}</p>
+                {!!input.productCategories && <p>კატეგორიები: {input.productCategories}</p>}
+                {!!input.uniqueValue && <p>უნიკალური ღირებულება: {input.uniqueValue}</p>}
                 <p>მიზანი: {GOAL_LABEL}</p>
               </div>
               <div>

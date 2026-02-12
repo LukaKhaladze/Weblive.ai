@@ -69,10 +69,11 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
       brand: input.businessName,
       nav: [
         { label: "მთავარი", href: "/" },
-        { label: "სერვისები", href: "/services" },
+        { label: "პროდუქტები", href: "/products" },
+        { label: "ჩვენ შესახებ", href: "/about" },
         { label: "კონტაქტი", href: "/contact" },
       ],
-      cta: { label: "დაწყება", href: "#contact" },
+      cta: { label: input.primaryCta || "დაწყება", href: "#contact" },
       tagline: "AI-ით შექმნილი ვებგვერდი",
       announcement: "ახალი შეთავაზება — 50% ფასდაკლება პირველ თვეზე",
       logo: input.logoUrl || "",
@@ -101,13 +102,17 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
     },
     defaultProps: (input) => ({
       eyebrow: input.location ? `📍 ${input.location}` : "⭐️ 5,000+ კმაყოფილი მომხმარებელი",
-      headline: `${input.businessName} — ${input.tone || "თანამედროვე"}`,
+      headline: `${input.businessName} — ${input.tone || "თანამედროვე"} ონლაინ მაღაზია`,
       subheadline: input.description,
-      ctaPrimary: { label: "დაწყება", href: "#contact" },
+      ctaPrimary: { label: input.primaryCta || "დაწყება", href: "#contact" },
       ctaSecondary: { label: "გაიგე მეტი", href: "#more" },
-      bullets: input.services
-        ? input.services.split(",").map((item) => item.trim()).filter(Boolean).slice(0, 3)
-        : ["პროფესიონალური გუნდი", "მაღალი ხარისხი", "სწრაფი მომსახურება"],
+      bullets: (input.productCategories || input.services)
+        ? (input.productCategories || input.services)
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean)
+            .slice(0, 3)
+        : ["ტრენდული პროდუქცია", "მაღალი ხარისხი", "სწრაფი მიწოდება"],
       stats: [
         { label: "საწყისი წელი", value: "2020 წელი" },
         { label: "კლიენტები", value: "150+ კომპანია" },
