@@ -28,6 +28,18 @@ export function applyShareLinks(site: Site, shareSlug: string) {
             },
           };
         }
+        if (section.widget === "hero") {
+          return {
+            ...section,
+            props: {
+              ...section.props,
+              products: (section.props.products || []).map((item: any) => ({
+                ...item,
+                href: prefixPath(prefix, item.href),
+              })),
+            },
+          };
+        }
         if (section.widget === "footer") {
           return {
             ...section,

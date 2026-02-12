@@ -1,6 +1,7 @@
 import { Theme } from "@/lib/schema";
 import EditableText from "@/components/EditableText";
 import ClickUpload from "@/components/ClickUpload";
+import Link from "next/link";
 
 type HeroProps = {
   variant: string;
@@ -15,6 +16,7 @@ type HeroProps = {
     image?: { src: string; alt?: string };
     gallery?: { src: string; alt?: string }[];
     backgroundImage?: string;
+    products?: { name: string; price: string; imageUrl: string; href?: string }[];
   };
   theme: Theme;
   editable?: boolean;
@@ -242,6 +244,16 @@ export default function Hero({
   }
 
   if (isMetrics) {
+    const products =
+      props.products && props.products.length > 0
+        ? props.products
+        : (props.gallery || []).map((item, index) => ({
+            name: `პროდუქტი ${index + 1}`,
+            price: "",
+            imageUrl: item.src,
+            href: `/products/${index + 1}`,
+          }));
+
     return (
       <section className="space-y-8">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
@@ -289,16 +301,61 @@ export default function Hero({
             ))}
           </div>
         </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          {(props.gallery || []).map((item, index) => (
-            <div key={index} className="overflow-hidden rounded-[20px]">
-              {editable && onImageUpload ? (
-                <ClickUpload onUpload={(file) => onImageUpload(`gallery.${index}.src`, file, "images")}>
-                  <img src={item.src} alt={item.alt || "gallery"} className="h-full w-full object-cover" />
-                </ClickUpload>
-              ) : (
-                <img src={item.src} alt={item.alt || "gallery"} className="h-full w-full object-cover" />
-              )}
+        <div className={`grid gap-6 ${products.length === 1 ? "md:grid-cols-1" : products.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
+          {products.map((product, index) => (
+            <div key={index} className="overflow-hidden rounded-[20px] border border-slate-200 bg-white">
+              <div className="aspect-[4/3] overflow-hidden">
+                {editable && onImageUpload ? (
+                  <ClickUpload onUpload={(file) => onImageUpload(`products.${index}.imageUrl`, file, "images")}>
+                    <img
+                      src={product.imageUrl || "/placeholders/scene-2.svg"}
+                      alt={product.name || `product ${index + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                  </ClickUpload>
+                ) : (
+                  <img
+                    src={product.imageUrl || "/placeholders/scene-2.svg"}
+                    alt={product.name || `product ${index + 1}`}
+                    className="h-full w-full object-cover"
+                  />
+                )}
+              </div>
+              <div className="space-y-3 p-4">
+                {renderText(
+                  "p",
+                  "text-lg font-semibold text-slate-900",
+                  product.name || `პროდუქტი ${index + 1}`,
+                  `products.${index}.name`
+                )}
+                {renderText(
+                  "p",
+                  "text-base font-medium text-slate-700",
+                  product.price || "",
+                  `products.${index}.price`
+                )}
+                {editable ? (
+                  <button
+                    type="button"
+                    className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                    onClick={() =>
+                      handleCtaClick(
+                        `products.${index}.href`,
+                        product.href || `/products/${index + 1}`
+                      )
+                    }
+                  >
+                    მეტის ნახვა
+                  </button>
+                ) : (
+                  <Link
+                    href={product.href || `/products/${index + 1}`}
+                    className="inline-flex rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    მეტის ნახვა
+                  </Link>
+                )}
+              </div>
             </div>
           ))}
         </div>

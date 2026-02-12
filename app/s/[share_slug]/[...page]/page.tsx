@@ -10,6 +10,14 @@ function normalizePath(segments: string[]) {
   return `/${segments.join("/")}`;
 }
 
+function parseProductIndex(segments: string[]) {
+  if (!segments || segments.length !== 2) return null;
+  if (segments[0] !== "products") return null;
+  const idx = Number(segments[1]);
+  if (!Number.isFinite(idx) || idx < 1) return null;
+  return idx - 1;
+}
+
 export default async function SharePagePath({
   params,
 }: {
@@ -41,8 +49,17 @@ export default async function SharePagePath({
   }
 
   const slug = normalizePath(params.page);
+  const productIndex = parseProductIndex(params.page);
   const site = applyShareLinks(project.site, params.share_slug);
   const page = site.pages.find((p: any) => p.slug === slug) || site.pages[0];
+  const products = project.input.products || [];
+  const activeProduct = productIndex !== null ? products[productIndex] : null;
+  const otherProducts =
+    productIndex !== null
+      ? products
+          .map((product: any, idx: number) => ({ product, idx }))
+          .filter((item: any) => item.idx !== productIndex)
+      : [];
 
   const expiresAt = new Date(project.expires_at).toLocaleDateString("ka-GE", {
     year: "numeric",
@@ -56,7 +73,63 @@ export default async function SharePagePath({
         გენერირებულია Weblive.ai-ის მიერ (ვადა: {expiresAt}).
       </div>
       <div className="mx-auto max-w-6xl px-6 py-8">
-        <PreviewRenderer site={site} pageId={page.id} />
+        {activeProduct ? (
+          <div className="space-y-10">
+            <section className="rounded-2xl bg-white p-8 shadow-sm">
+              <div className="grid gap-8 md:grid-cols-2">
+                <div className="overflow-hidden rounded-xl bg-slate-100">
+                  <img
+                    src={activeProduct.imageUrl || "/placeholders/scene-2.svg"}
+                    alt={activeProduct.name}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="space-y-4">
+                  <h1 className="text-3xl font-semibold text-slate-900">{activeProduct.name}</h1>
+                  <p className="text-2xl font-semibold text-slate-700">{activeProduct.price}</p>
+                  <a
+                    href={`tel:${project.input.contact?.phone || ""}`}
+                    className="inline-flex rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white"
+                  >
+                    დაგვიკავშირდით
+                  </a>
+                </div>
+              </div>
+            </section>
+
+            {otherProducts.length > 0 && (
+              <section className="space-y-4">
+                <h2 className="text-2xl font-semibold text-slate-900">სხვა პროდუქტები</h2>
+                <div className={`grid gap-6 ${otherProducts.length === 1 ? "md:grid-cols-1" : otherProducts.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
+                  {otherProducts.map((item: any, idx: number) => {
+                    const product = item.product;
+                    const href = `/s/${params.share_slug}/products/${item.idx + 1}`;
+                    return (
+                      <article key={`${product.name}-${idx}`} className="overflow-hidden rounded-xl bg-white shadow-sm">
+                        <div className="aspect-[4/3] overflow-hidden bg-slate-100">
+                          <img
+                            src={product.imageUrl || "/placeholders/scene-2.svg"}
+                            alt={product.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="space-y-2 p-4">
+                          <h3 className="text-lg font-semibold text-slate-900">{product.name}</h3>
+                          <p className="text-base font-medium text-slate-700">{product.price}</p>
+                          <a href={href} className="inline-flex rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-900">
+                            მეტის ნახვა
+                          </a>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+          </div>
+        ) : (
+          <PreviewRenderer site={site} pageId={page.id} />
+        )}
       </div>
     </div>
   );

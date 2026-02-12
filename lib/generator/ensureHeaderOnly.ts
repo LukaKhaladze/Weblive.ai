@@ -6,11 +6,13 @@ export function ensureHeaderOnly(site: Site, input: WizardInput): Site {
   const pickVariant = () =>
     headerVariants[Math.floor(Math.random() * headerVariants.length)] || "v1-classic";
   const selectedVariant = pickVariant();
-  const heroVariants = widgetRegistry.hero?.variants || [];
-  const heroVariant =
-    heroVariants[Math.floor(Math.random() * heroVariants.length)] || "v1-split";
+  const heroVariant = "v4-metrics";
 
-  const navLinks = site.pages.map((page) => ({ label: page.name, href: page.slug }));
+  const fixedNavOrder = ["/", "/products", "/about", "/contact"];
+  const navLinks = fixedNavOrder
+    .map((slug) => site.pages.find((page) => page.slug === slug))
+    .filter(Boolean)
+    .map((page) => ({ label: (page as any).name, href: (page as any).slug }));
 
   const pages = site.pages.map((page, index) => {
     const headerSection = page.sections.find((section) => section.widget === "header");

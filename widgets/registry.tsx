@@ -118,6 +118,24 @@ export const widgetRegistry: Record<WidgetType, WidgetDefinition> = {
         { label: "კლიენტები", value: "150+ კომპანია" },
         { label: "ტრაფიკი", value: "1M+ ვიზიტორი" },
       ],
+      products:
+        input.products && input.products.length > 0
+          ? input.products.map((product, index) => ({
+              name: product.name,
+              price: product.price,
+              imageUrl:
+                product.imageUrl ||
+                `/placeholders/scene-${(index % 4) + 2}.svg`,
+              href: `/products/${index + 1}`,
+            }))
+          : [
+              {
+                name: "პროდუქტი 1",
+                price: "100 ლარი",
+                imageUrl: "/placeholders/scene-2.svg",
+                href: "/products/1",
+              },
+            ],
       image: { src: "/placeholders/scene-1.svg", alt: "hero" },
       gallery: [
         { src: "/placeholders/scene-2.svg", alt: "gallery 1" },
