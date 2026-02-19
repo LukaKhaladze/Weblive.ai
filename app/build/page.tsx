@@ -128,7 +128,7 @@ export default function BuildPage() {
       const planData = await planResponse.json();
       if (!planResponse.ok || !planData?.siteSpec) {
         setLoading(false);
-        alert("Planning failed.");
+        alert(planData?.error ? `Planning failed: ${planData.error}` : "Planning failed.");
         return;
       }
 
@@ -172,7 +172,7 @@ export default function BuildPage() {
       const data = await response.json();
       if (!response.ok) {
         setLoading(false);
-        alert("Generation failed.");
+        alert(data?.error ? `Generation failed: ${data.error}` : "Generation failed.");
         return;
       }
 
@@ -241,7 +241,7 @@ export default function BuildPage() {
       router.push(`/e/${data.edit_token}`);
     } catch (error) {
       console.error("Build generate failed", error);
-      alert("Generation failed.");
+      alert(error instanceof Error ? `Generation failed: ${error.message}` : "Generation failed.");
       setLoading(false);
     }
   }
