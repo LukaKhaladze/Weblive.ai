@@ -31,7 +31,7 @@ export default function Hero({
   onEdit,
   onImageUpload,
 }: HeroProps) {
-  const isSplit = variant === "v1-split";
+  const isSplit = variant === "v1-split" || variant === "v1-centered" || variant === "v2-split";
   const isFullBg = variant === "v2-full-bg";
   const isCard = variant === "v3-card";
   const isMetrics = variant === "v4-metrics";

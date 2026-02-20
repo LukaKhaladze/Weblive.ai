@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { planSite } from "@/lib/planner";
+import { planLayout } from "@/lib/planner";
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 8;
@@ -34,16 +34,17 @@ export async function POST(req: Request) {
   }
 
   try {
-    const result = await planSite({
+    const result = await planLayout({
       prompt,
+      website_type: body?.website_type === "catalog" || body?.website_type === "info" ? body.website_type : undefined,
       locale: typeof body?.locale === "string" ? body.locale : "en",
       brand: body?.brand,
       contact: body?.contact,
-      constraints: body?.constraints,
+      products: Array.isArray(body?.products) ? body.products : [],
     });
 
     return NextResponse.json({
-      siteSpec: result.siteSpec,
+      layoutPlan: result.layoutPlan,
       warnings: result.warnings,
       unsupported_features: result.unsupported_features,
     });

@@ -28,7 +28,7 @@ export default function Header({ variant, props, editable, onEdit, onImageUpload
   const isBordered = variant === "v9-bordered";
   const isCenteredLogo = variant === "v3-centered-logo";
   const isClassic = variant === "v1-classic";
-  const isCompact = variant === "v2-compact-right";
+  const isCompact = variant === "v2-compact-right" || variant === "v2-search";
   const isSplitTagline = variant === "v4-split-tagline";
   const isAnnouncement = variant === "v10-announcement";
 

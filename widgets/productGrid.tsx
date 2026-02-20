@@ -1,5 +1,6 @@
 import { Theme } from "@/lib/schema";
 import EditableText from "@/components/EditableText";
+import ClickUpload from "@/components/ClickUpload";
 
 type ProductGridProps = {
   variant: string;
@@ -10,9 +11,10 @@ type ProductGridProps = {
   theme: Theme;
   editable?: boolean;
   onEdit?: (path: string, value: any) => void;
+  onImageUpload?: (path: string, file: File, kind?: "logo" | "images") => void;
 };
 
-export default function ProductGrid({ props, editable, onEdit }: ProductGridProps) {
+export default function ProductGrid({ props, editable, onEdit, onImageUpload }: ProductGridProps) {
   const textStyles = (props as any)._textStyles || {};
   const styleFor = (path: string) => textStyles[path];
 
@@ -38,7 +40,13 @@ export default function ProductGrid({ props, editable, onEdit }: ProductGridProp
               className="rounded-[28px] border border-slate-200 bg-white p-6 text-center shadow-sm"
             >
               <div className="aspect-square w-full overflow-hidden rounded-[20px] bg-slate-50">
-                <img src={item.image.src} alt={item.image.alt} className="h-full w-full object-contain" />
+                {editable && onImageUpload ? (
+                  <ClickUpload onUpload={(file) => onImageUpload(`items.${index}.image.src`, file, "images")}>
+                    <img src={item.image.src} alt={item.image.alt} className="h-full w-full object-contain" />
+                  </ClickUpload>
+                ) : (
+                  <img src={item.image.src} alt={item.image.alt} className="h-full w-full object-contain" />
+                )}
               </div>
               <div className="mt-4 space-y-1">
                 {editable && onEdit ? (

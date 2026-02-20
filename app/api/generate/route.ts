@@ -8,6 +8,8 @@ import { runGeneration } from "@/lib/generator/runGeneration";
 import { SiteSpec, SiteSpecSchema } from "@/schemas/siteSpec";
 import { renderFromSpec } from "@/lib/renderFromSpec";
 import { planSite, inferBusinessNameFromPrompt } from "@/lib/planner";
+import { LayoutPlanSchema } from "@/schemas/layoutPlan";
+import { renderFromPlan } from "@/lib/renderFromPlan";
 
 const OPENAI_IMAGE_MODEL = "gpt-image-1";
 const MAX_GENERATED_IMAGES = 2;
@@ -37,6 +39,67 @@ function mapGoalToWizardGoal(goal: string): WizardInput["goal"] {
   if (goal === "downloads") return "visit";
   if (goal === "calls") return "calls";
   return "leads";
+}
+
+function toWizardInputFromLayoutPlan(payload: {
+  layoutPlan: { website_type: "info" | "catalog"; pages: Array<{ slug: string }> };
+  businessName: string;
+  prompt?: string;
+  brand?: { colors?: string[]; logo_url?: string };
+  contact?: { phone?: string; email?: string; address?: string };
+  products?: { name: string; price?: string; imageUrl?: string }[];
+  inputOverrides?: Partial<WizardInput>;
+}): WizardInput {
+  const overrides = payload.inputOverrides ?? {};
+  return normalizeEcommerceInput({
+    ...normalizeEcommerceInput({
+      prompt: payload.prompt || "",
+      businessName: payload.businessName || "My Business",
+      category: payload.layoutPlan.website_type === "catalog" ? "ecommerce" : "informational",
+      description: overrides.description || payload.prompt || "",
+      productCategories: overrides.productCategories || "",
+      services: overrides.services || "",
+      uniqueValue: overrides.uniqueValue || "",
+      priceRange: overrides.priceRange || "",
+      targetAudience: overrides.targetAudience || "",
+      location: overrides.location || "",
+      tone: overrides.tone || "",
+      visualStyle: overrides.visualStyle || "",
+      imageMood: overrides.imageMood || "",
+      primaryCta: overrides.primaryCta || "",
+      goal: overrides.goal || "leads",
+      pages:
+        payload.layoutPlan.pages.map((page) => (page.slug === "/" ? "home" : page.slug.replace("/", ""))) ||
+        ["home", "about", "contact"],
+      includeProductPage: overrides.includeProductPage ?? false,
+      products:
+        payload.products?.map((product) => ({
+          name: product.name,
+          price: product.price || "",
+          imageUrl: product.imageUrl || "",
+        })) || [],
+      brand: {
+        primaryColor: payload.brand?.colors?.[0] || "#1c3d7a",
+        secondaryColor: payload.brand?.colors?.[1] || "#f4b860",
+        extractFromLogo: false,
+      },
+      logoUrl: payload.brand?.logo_url || "",
+      contact: {
+        phone: payload.contact?.phone || "",
+        email: payload.contact?.email || "",
+        address: payload.contact?.address || "",
+        hours: "",
+        socials: {
+          instagram: "",
+          facebook: "",
+          linkedin: "",
+          twitter: "",
+        },
+      },
+      siteSpec: payload.layoutPlan,
+    }),
+    ...overrides,
+  });
 }
 
 function toWizardInputFromSpec(payload: {
@@ -196,9 +259,38 @@ export async function POST(req: Request) {
     let site: any;
     let seo: any;
 
+    const parsedLayoutPlan = body.layoutPlan ? LayoutPlanSchema.safeParse(body.layoutPlan) : null;
     const parsedSiteSpec = body.siteSpec ? SiteSpecSchema.safeParse(body.siteSpec) : null;
 
-    if (parsedSiteSpec?.success) {
+    if (parsedLayoutPlan?.success) {
+      const rendered = renderFromPlan(parsedLayoutPlan.data, {
+        brand: body.brand,
+        contact: body.contact,
+        products: Array.isArray(body.products) ? body.products : [],
+        businessName:
+          body.inputOverrides?.businessName ||
+          body.businessName ||
+          inferBusinessNameFromPrompt(typeof body.prompt === "string" ? body.prompt : "My Business"),
+        prompt: typeof body.prompt === "string" ? body.prompt : "",
+      });
+      inputForStorage = toWizardInputFromLayoutPlan({
+        layoutPlan: rendered.layoutPlan,
+        businessName:
+          body.inputOverrides?.businessName ||
+          body.businessName ||
+          inferBusinessNameFromPrompt(typeof body.prompt === "string" ? body.prompt : "My Business"),
+        prompt: typeof body.prompt === "string" ? body.prompt : "",
+        brand: body.brand,
+        contact: body.contact,
+        products: Array.isArray(body.products) ? body.products : [],
+        inputOverrides: body.inputOverrides,
+      });
+      site = rendered.site;
+      seo = rendered.seo;
+      seo.recommendations = Array.from(
+        new Set([...(seo.recommendations || []), ...(rendered.layoutPlan.warnings || [])])
+      );
+    } else if (parsedSiteSpec?.success) {
       const rendered = renderFromSpec(parsedSiteSpec.data);
       inputForStorage = toWizardInputFromSpec({
         prompt: typeof body.prompt === "string" ? body.prompt : parsedSiteSpec.data.prompt_summary,

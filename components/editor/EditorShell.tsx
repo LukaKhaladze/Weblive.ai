@@ -11,9 +11,9 @@ import {
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import SectionFrame from "@/components/editor/SectionFrame";
 import SeoPanel from "@/components/editor/SeoPanel";
-import { renderWidget, widgetRegistry, WidgetType } from "@/widgets/registry";
+import { editableFieldsByWidgetVariant, renderWidget, widgetRegistry, WidgetType } from "@/widgets/registry";
 import { Site, SeoPayload, WizardInput } from "@/lib/schema";
-import { updateByPath } from "@/lib/deepUpdate";
+import { getByPath, setByPath } from "@/lib/pathAccess";
 import Image from "next/image";
 
 const tabs = ["Pages", "Theme", "SEO", "Widgets"] as const;
@@ -65,6 +65,10 @@ export default function EditorShell({
   const selectedSection = currentPage?.sections.find(
     (section) => section.id === selectedSectionId
   );
+  const selectedSectionFields = useMemo(() => {
+    if (!selectedSection) return [];
+    return editableFieldsByWidgetVariant[`${selectedSection.widget}:${selectedSection.variant}`] || [];
+  }, [selectedSection]);
 
   const defaultSectionStyle = {
     bg: "none",
@@ -218,18 +222,13 @@ export default function EditorShell({
 
     const applyUpdate = (sectionData: any) => ({
       ...sectionData,
-      props: updateByPath(sectionData.props, path, data.url),
+      props: setByPath(sectionData.props || {}, path, data.url),
     });
 
-    if (widgetType === "header" || widgetType === "hero") {
-      updateWidgetEverywhere(widgetType, applyUpdate);
-      if (widgetType === "header") {
-        setInput((prev) => ({ ...prev, logoUrl: data.url }));
-      }
-      return;
+    updateWidgetEverywhere(widgetType, applyUpdate);
+    if (widgetType === "header") {
+      setInput((prev) => ({ ...prev, logoUrl: data.url }));
     }
-
-    updateSection(sectionId, applyUpdate);
   }
 
   function updatePageName(pageId: string, name: string) {
@@ -470,6 +469,78 @@ export default function EditorShell({
                   {page.name}
                 </button>
               ))}
+              {selectedSection && (
+                <div className="mt-3 rounded-2xl border border-border p-3">
+                  <p className="text-[10px] uppercase tracking-[0.25em] text-muted">Section Fields</p>
+                  <p className="mt-1 text-xs text-[#F8FAFC]">
+                    {widgetRegistry[selectedSection.widget as WidgetType]?.name || selectedSection.widget}
+                  </p>
+                  <div className="mt-3 space-y-2">
+                    {selectedSectionFields.map((field) => {
+                      const value = getByPath(selectedSection.props, field.path);
+                      if (field.type === "list") return null;
+                      if (field.type === "image") {
+                        return (
+                          <label key={field.path} className="block text-xs text-muted">
+                            {field.label}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="mt-1 w-full rounded-xl border border-border bg-transparent p-2 text-xs"
+                              onChange={(event) => {
+                                const file = event.target.files?.[0];
+                                if (!file) return;
+                                void handleSectionUpload(
+                                  selectedSection.id,
+                                  selectedSection.widget as WidgetType,
+                                  field.path,
+                                  file,
+                                  field.path.includes("logo") ? "logo" : "images"
+                                );
+                                event.currentTarget.value = "";
+                              }}
+                            />
+                          </label>
+                        );
+                      }
+                      if (field.type === "textarea") {
+                        return (
+                          <label key={field.path} className="block text-xs text-muted">
+                            {field.label}
+                            <textarea
+                              className="mt-1 w-full rounded-xl border border-border bg-transparent p-2 text-xs text-[#F8FAFC]"
+                              value={typeof value === "string" ? value : ""}
+                              onChange={(event) => {
+                                const applyUpdate = (sectionData: any) => ({
+                                  ...sectionData,
+                                  props: setByPath(sectionData.props || {}, field.path, event.target.value),
+                                });
+                                updateWidgetEverywhere(selectedSection.widget as WidgetType, applyUpdate);
+                              }}
+                            />
+                          </label>
+                        );
+                      }
+                      return (
+                        <label key={field.path} className="block text-xs text-muted">
+                          {field.label}
+                          <input
+                            className="mt-1 w-full rounded-xl border border-border bg-transparent p-2 text-xs text-[#F8FAFC]"
+                            value={typeof value === "string" ? value : ""}
+                            onChange={(event) => {
+                              const applyUpdate = (sectionData: any) => ({
+                                ...sectionData,
+                                props: setByPath(sectionData.props || {}, field.path, event.target.value),
+                              });
+                              updateWidgetEverywhere(selectedSection.widget as WidgetType, applyUpdate);
+                            }}
+                          />
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -759,14 +830,10 @@ export default function EditorShell({
                                 (path, value) => {
                                   const applyUpdate = (sectionData: any) => ({
                                     ...sectionData,
-                                    props: updateByPath(sectionData.props, path, value),
+                                    props: setByPath(sectionData.props || {}, path, value),
                                   });
 
-                                  if (section.widget === "header" || section.widget === "hero") {
-                                    updateWidgetEverywhere(section.widget as WidgetType, applyUpdate);
-                                  } else {
-                                    updateSection(section.id, applyUpdate);
-                                  }
+                                  updateWidgetEverywhere(section.widget as WidgetType, applyUpdate);
 
                                   if (section.widget === "header" && path.startsWith("nav.")) {
                                     const parts = path.split(".");

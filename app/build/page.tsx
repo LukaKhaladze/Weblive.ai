@@ -7,7 +7,7 @@ import { recipes } from "@/lib/generator/recipes";
 import { widgetRegistry } from "@/widgets/registry";
 import { ECOMMERCE_FIXED_PAGES, normalizeEcommerceInput } from "@/lib/generator/normalizeEcommerceInput";
 import { buildPromptFromFields } from "@/lib/planner";
-import { SiteSpec } from "@/schemas/siteSpec";
+import { LayoutPlan } from "@/schemas/layoutPlan";
 
 const GOAL_LABEL = "Get calls from products";
 
@@ -94,6 +94,7 @@ const demoInput: WizardInput = normalizeEcommerceInput({
 
 export default function BuildPage() {
   const router = useRouter();
+  const [websiteType, setWebsiteType] = useState<"catalog" | "info">("catalog");
   const [step, setStep] = useState(0);
   const [input, setInput] = useState<WizardInput>(defaultInput);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -143,6 +144,7 @@ export default function BuildPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt,
+          website_type: websiteType,
           locale: "en",
           brand: {
             colors: [normalized.brand.primaryColor, normalized.brand.secondaryColor],
@@ -154,7 +156,7 @@ export default function BuildPage() {
             address: normalized.contact.address,
             city: normalized.location || undefined,
           },
-          constraints: { max_pages: 5 },
+          products: normalized.products,
         }),
       });
 
@@ -165,7 +167,7 @@ export default function BuildPage() {
       } catch {
         planData = { error: planRaw?.slice(0, 280) || "Unknown planner response" };
       }
-      if (!planResponse.ok || !planData?.siteSpec) {
+      if (!planResponse.ok || !planData?.layoutPlan) {
         setLoading(false);
         const message = planData?.error ? `Planning failed: ${planData.error}` : "Planning failed.";
         setLastError(message);
@@ -173,7 +175,7 @@ export default function BuildPage() {
         return;
       }
 
-      const siteSpec = planData.siteSpec as SiteSpec;
+      const layoutPlan = planData.layoutPlan as LayoutPlan;
       const warnings = Array.isArray(planData.warnings) ? (planData.warnings as string[]) : [];
       const unsupported = Array.isArray(planData.unsupported_features)
         ? (planData.unsupported_features as string[])
@@ -194,7 +196,7 @@ export default function BuildPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          siteSpec,
+          layoutPlan,
           prompt,
           brand: {
             colors: [normalized.brand.primaryColor, normalized.brand.secondaryColor],
@@ -206,6 +208,7 @@ export default function BuildPage() {
             address: normalized.contact.address,
             city: normalized.location || undefined,
           },
+          products: normalized.products,
           inputOverrides: normalized,
         }),
       });
@@ -320,6 +323,23 @@ export default function BuildPage() {
           <div className="text-sm text-muted">
             Step {step + 1} / {steps.length}
           </div>
+        </div>
+
+        <div className="mt-4 inline-flex rounded-full border border-border bg-primary p-1 text-xs">
+          <button
+            className={`rounded-full px-4 py-1.5 ${websiteType === "catalog" ? "bg-brand-gradient text-white" : "text-muted"}`}
+            onClick={() => setWebsiteType("catalog")}
+            type="button"
+          >
+            Catalog
+          </button>
+          <button
+            className={`rounded-full px-4 py-1.5 ${websiteType === "info" ? "bg-brand-gradient text-white" : "text-muted"}`}
+            onClick={() => setWebsiteType("info")}
+            type="button"
+          >
+            Informational
+          </button>
         </div>
 
         <div className="mt-8 rounded-[32px] border border-border bg-primary p-8">
