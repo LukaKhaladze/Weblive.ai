@@ -449,7 +449,7 @@ export const CATALOG_RECIPES = [
   {
     id: "catalog-megamarket",
     name: "MegaMarket",
-    sections: ["header:v2-search", "banners:hero_side_promos", "categories:icons_grid", "products_grid:grid_8", "promo_strip:icons", "products_carousel:carousel", "newsletter:bar", "footer:v2-mega"],
+    sections: ["header:v2-search", "hero:v2-split", "banners:hero_side_promos", "categories:icons_grid", "products_grid:grid_8", "promo_strip:icons", "products_carousel:carousel", "newsletter:bar", "footer:v2-mega"],
   },
   {
     id: "catalog-boutique",
@@ -459,7 +459,7 @@ export const CATALOG_RECIPES = [
   {
     id: "catalog-clean",
     name: "Catalog Clean",
-    sections: ["header:v2-search", "hero:v1-centered", "products_grid:grid_8", "brands_strip:logos", "promo_strip:icons", "footer:v1-simple"],
+    sections: ["header:v2-search", "hero:v1-centered", "categories:icons_grid", "products_grid:grid_8", "brands_strip:logos", "promo_strip:icons", "footer:v1-simple"],
   },
   {
     id: "catalog-story",
@@ -474,7 +474,7 @@ export const CATALOG_RECIPES = [
   {
     id: "catalog-landing",
     name: "Campaign Catalog",
-    sections: ["header:v2-search", "banners:hero_side_promos", "products_grid:grid_4", "products_carousel:carousel", "newsletter:bar", "footer:v1-simple"],
+    sections: ["header:v2-search", "hero:v2-split", "banners:hero_side_promos", "categories:image_grid", "products_grid:grid_4", "products_carousel:carousel", "newsletter:bar", "footer:v1-simple"],
   },
 ] as const;
 
