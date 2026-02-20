@@ -108,15 +108,17 @@ export default function BuildPage() {
   const steps = useMemo(() => stepsBase, []);
 
   const availablePages = useMemo(() => {
-    const recipe = recipes.ecommerce;
-    return recipe.pages.map((page) => ({ id: page.id, name: page.name }));
+    const pages = recipes?.ecommerce?.pages;
+    if (!Array.isArray(pages)) return [];
+    return pages.map((page) => ({ id: page.id, name: page.name }));
   }, []);
 
   const canNext = () => {
     if (step === 0) return input.businessName.trim().length > 0;
     if (step === 1) return input.description.trim().length > 0 || (input.prompt || "").trim().length > 0;
     if (steps[step] === "Products") {
-      return input.products.length > 0 && input.products.every((p) => p.name && p.price);
+      const products = Array.isArray(input.products) ? input.products : [];
+      return products.length > 0 && products.every((p) => p.name && p.price);
     }
     return true;
   };
@@ -266,7 +268,7 @@ export default function BuildPage() {
         }
       }
 
-      if (activeInput.products.length > 0 && !sourceInput) {
+      if (Array.isArray(activeInput.products) && activeInput.products.length > 0 && !sourceInput) {
         const updatedProducts = [...activeInput.products];
         for (let i = 0; i < updatedProducts.length; i += 1) {
           const file = productFiles[i];
@@ -501,9 +503,9 @@ export default function BuildPage() {
                     }`}
                     onClick={() => {
                       const next = Array.from({ length: count }).map((_, index) => ({
-                        name: input.products[index]?.name || "",
-                        price: input.products[index]?.price || "",
-                        imageUrl: input.products[index]?.imageUrl || "",
+                        name: (input.products || [])[index]?.name || "",
+                        price: (input.products || [])[index]?.price || "",
+                        imageUrl: (input.products || [])[index]?.imageUrl || "",
                       }));
                       setInput((prev) => ({ ...prev, products: next }));
                     }}
@@ -687,7 +689,13 @@ export default function BuildPage() {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-muted">Widgets</p>
-                <p className="mt-2">{Object.values(widgetRegistry).map((w) => w.name).slice(0, 6).join(", ")}...</p>
+                <p className="mt-2">
+                  {(widgetRegistry ? Object.values(widgetRegistry) : [])
+                    .map((w) => w.name)
+                    .slice(0, 6)
+                    .join(", ")}
+                  ...
+                </p>
               </div>
               {(plannerWarnings.length > 0 || unsupportedFeatures.length > 0) && (
                 <div>
