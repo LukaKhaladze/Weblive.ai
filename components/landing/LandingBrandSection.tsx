@@ -12,11 +12,11 @@ const cards = [
 export default function LandingBrandSection() {
   return (
     <section className="space-y-4">
-      <h2 className="text-2xl font-semibold text-[#F8FAFC]">Make it uniquely yours</h2>
+      <h2 className="text-2xl font-semibold text-slate-900">Make it uniquely yours</h2>
       <div className="grid gap-4 md:grid-cols-2">
         {cards.map((card) => (
           <article key={card.title} className="surface-card p-6">
-            <h3 className="text-lg font-semibold text-[#F8FAFC]">{card.title}</h3>
+            <h3 className="text-lg font-semibold text-slate-900">{card.title}</h3>
             <p className="mt-2 text-sm text-muted">{card.text}</p>
           </article>
         ))}

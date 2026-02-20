@@ -374,16 +374,16 @@ export default function EditorShell({
 
   if (!currentPage) {
     return (
-    <div className="min-h-screen bg-primary text-[#F8FAFC] flex items-center justify-center">
+    <div className="min-h-screen bg-primary text-slate-900 flex items-center justify-center">
         <p>Pages not found.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-primary text-[#F8FAFC]">
+    <div className="min-h-screen bg-primary text-slate-900">
       <div className="sticky top-0 z-20 border-b border-border bg-primary/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 text-[#F8FAFC]">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 text-slate-900">
           <div>
             <div className="pl-6 pr-6">
               <Image src="/placeholders/weblive.png" alt="Weblive.ai" width={132} height={34} className="h-auto w-[132px]" />
@@ -433,7 +433,7 @@ export default function EditorShell({
       </div>
 
       <div className="mx-auto grid max-w-7xl grid-cols-[280px_1fr] gap-6 px-6 py-6">
-        <aside className="space-y-6 border border-border bg-primary p-5 text-[#F8FAFC]">
+        <aside className="space-y-6 border border-border bg-primary p-5 text-slate-900">
           <a
             href="/rules"
             className="btn-secondary rounded-full px-4 py-2 text-xs text-muted"
@@ -472,7 +472,7 @@ export default function EditorShell({
               {selectedSection && (
                 <div className="mt-3 rounded-2xl border border-border p-3">
                   <p className="text-[10px] uppercase tracking-[0.25em] text-muted">Section Fields</p>
-                  <p className="mt-1 text-xs text-[#F8FAFC]">
+                  <p className="mt-1 text-xs text-slate-900">
                     {widgetRegistry[selectedSection.widget as WidgetType]?.name || selectedSection.widget}
                   </p>
                   <div className="mt-3 space-y-2">
@@ -508,7 +508,7 @@ export default function EditorShell({
                           <label key={field.path} className="block text-xs text-muted">
                             {field.label}
                             <textarea
-                              className="mt-1 w-full rounded-xl border border-border bg-transparent p-2 text-xs text-[#F8FAFC]"
+                              className="mt-1 w-full rounded-xl border border-border bg-transparent p-2 text-xs text-slate-900"
                               value={typeof value === "string" ? value : ""}
                               onChange={(event) => {
                                 const applyUpdate = (sectionData: any) => ({
@@ -525,7 +525,7 @@ export default function EditorShell({
                         <label key={field.path} className="block text-xs text-muted">
                           {field.label}
                           <input
-                            className="mt-1 w-full rounded-xl border border-border bg-transparent p-2 text-xs text-[#F8FAFC]"
+                            className="mt-1 w-full rounded-xl border border-border bg-transparent p-2 text-xs text-slate-900"
                             value={typeof value === "string" ? value : ""}
                             onChange={(event) => {
                               const applyUpdate = (sectionData: any) => ({
@@ -609,7 +609,7 @@ export default function EditorShell({
               <label className="block">
                 CTA text
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-transparent p-2 text-xs text-[#F8FAFC]"
+                  className="mt-2 w-full rounded-xl border border-border bg-transparent p-2 text-xs text-slate-900"
                   value={
                     (site.pages[0]?.sections.find((section) => section.widget === "header")?.props
                       ?.cta?.label as string) || "Get Started"
@@ -620,7 +620,7 @@ export default function EditorShell({
               <label className="block">
                 CTA URL
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-transparent p-2 text-xs text-[#F8FAFC]"
+                  className="mt-2 w-full rounded-xl border border-border bg-transparent p-2 text-xs text-slate-900"
                   value={
                     (site.pages[0]?.sections.find((section) => section.widget === "header")?.props
                       ?.cta?.href as string) || "#contact"
@@ -681,7 +681,7 @@ export default function EditorShell({
                   </div>
                   {widgets.map((widget) => (
                     <div key={widget.type} className="border border-border bg-primary p-6">
-                      <div className="flex items-center justify-between text-[#F8FAFC]">
+                      <div className="flex items-center justify-between text-slate-900">
                         <div>
                           <h3 className="text-lg font-semibold">{widget.name}</h3>
                         </div>
@@ -890,7 +890,7 @@ export default function EditorShell({
             </p>
             <div className="mt-4 flex items-center gap-2">
               <input
-                className="flex-1 rounded-xl border border-border bg-primary p-3 text-sm text-[#F8FAFC]"
+                className="flex-1 rounded-xl border border-border bg-primary p-3 text-sm text-slate-900"
                 value={`${baseUrl}/s/${project.share_slug}`}
                 readOnly
               />

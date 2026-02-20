@@ -27,7 +27,7 @@ export default async function SharePagePath({
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-primary text-[#F8FAFC] flex items-center justify-center">
+      <div className="min-h-screen bg-primary text-slate-900 flex items-center justify-center">
         <p>Project not found.</p>
       </div>
     );
@@ -36,7 +36,7 @@ export default async function SharePagePath({
   const expired = new Date(project.expires_at).getTime() < Date.now();
   if (expired) {
     return (
-      <div className="min-h-screen bg-primary text-[#F8FAFC] flex items-center justify-center">
+      <div className="min-h-screen bg-primary text-slate-900 flex items-center justify-center">
         <div className="surface-card rounded-[28px] p-8 text-center">
           <h1 className="text-2xl font-semibold">Link expired</h1>
           <p className="mt-2 text-sm text-muted">Create a new project to get a fresh link.</p>
@@ -85,7 +85,7 @@ export default async function SharePagePath({
                   />
                 </div>
                 <div className="space-y-4">
-                  <h1 className="text-3xl font-semibold text-[#F8FAFC]">{activeProduct.name}</h1>
+                  <h1 className="text-3xl font-semibold text-slate-900">{activeProduct.name}</h1>
                   <p className="text-2xl font-semibold text-muted">{activeProduct.price}</p>
                   <a
                     href={`tel:${project.input.contact?.phone || ""}`}
@@ -99,7 +99,7 @@ export default async function SharePagePath({
 
             {otherProducts.length > 0 && (
               <section className="space-y-4">
-                <h2 className="text-2xl font-semibold text-[#F8FAFC]">Other Products</h2>
+                <h2 className="text-2xl font-semibold text-slate-900">Other Products</h2>
                 <div className={`grid gap-6 ${otherProducts.length === 1 ? "md:grid-cols-1" : otherProducts.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
                   {otherProducts.map((item: any, idx: number) => {
                     const product = item.product;
@@ -114,7 +114,7 @@ export default async function SharePagePath({
                           />
                         </div>
                         <div className="space-y-2 p-4">
-                          <h3 className="text-lg font-semibold text-[#F8FAFC]">{product.name}</h3>
+                          <h3 className="text-lg font-semibold text-slate-900">{product.name}</h3>
                           <p className="text-base font-medium text-muted">{product.price}</p>
                           <a href={href} className="btn-secondary inline-flex px-4 py-2 text-sm font-semibold">
                             View Details

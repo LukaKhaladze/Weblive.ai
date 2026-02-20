@@ -328,7 +328,7 @@ export default function BuildPage() {
   }, [steps.length]);
 
   return (
-    <div className="min-h-screen bg-primary text-[#F8FAFC]">
+    <div className="min-h-screen bg-primary text-slate-900">
       <div className="mx-auto max-w-4xl px-6 py-10">
         <div className="flex items-center justify-between">
           <div>
@@ -364,7 +364,7 @@ export default function BuildPage() {
             <div className="mt-6">
               <label className="text-sm text-muted">Business Name</label>
               <input
-                className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                 value={input.businessName}
                 onChange={(event) => setInput({ ...input, businessName: event.target.value })}
               />
@@ -376,7 +376,7 @@ export default function BuildPage() {
               <label className="block text-sm text-muted">
                 Describe what website you need (planner prompt)
                 <textarea
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   rows={4}
                   value={input.prompt || ""}
                   onChange={(event) => setInput({ ...input, prompt: event.target.value })}
@@ -385,7 +385,7 @@ export default function BuildPage() {
               </label>
               <label className="block text-sm text-muted">Short Description</label>
               <textarea
-                className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                 rows={4}
                 value={input.description}
                 onChange={(event) => setInput({ ...input, description: event.target.value })}
@@ -398,7 +398,7 @@ export default function BuildPage() {
               <label className="text-sm text-muted">
                 Product categories (comma separated)
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   value={input.productCategories || ""}
                   onChange={(event) => setInput({ ...input, productCategories: event.target.value, services: event.target.value })}
                   placeholder="skincare, makeup, accessories"
@@ -407,7 +407,7 @@ export default function BuildPage() {
               <label className="text-sm text-muted">
                 Unique value proposition
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   value={input.uniqueValue || ""}
                   onChange={(event) => setInput({ ...input, uniqueValue: event.target.value })}
                   placeholder="Why customers should choose you over competitors"
@@ -416,7 +416,7 @@ export default function BuildPage() {
               <label className="text-sm text-muted">
                 Target audience
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   value={input.targetAudience}
                   onChange={(event) => setInput({ ...input, targetAudience: event.target.value })}
                   placeholder="Women 20-45"
@@ -425,7 +425,7 @@ export default function BuildPage() {
               <label className="text-sm text-muted">
                 Price range
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   value={input.priceRange || ""}
                   onChange={(event) => setInput({ ...input, priceRange: event.target.value })}
                   placeholder="mid-range, premium, $30-$120"
@@ -434,7 +434,7 @@ export default function BuildPage() {
               <label className="text-sm text-muted">
                 Location
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   value={input.location}
                   onChange={(event) => setInput({ ...input, location: event.target.value })}
                   placeholder="Tbilisi, Vake"
@@ -443,7 +443,7 @@ export default function BuildPage() {
               <label className="text-sm text-muted">
                 Tone / style
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   value={input.tone}
                   onChange={(event) => setInput({ ...input, tone: event.target.value })}
                   placeholder="elegant, premium"
@@ -452,7 +452,7 @@ export default function BuildPage() {
               <label className="text-sm text-muted">
                 Visual style
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   value={input.visualStyle || ""}
                   onChange={(event) => setInput({ ...input, visualStyle: event.target.value })}
                   placeholder="minimal, modern, dark, light"
@@ -461,7 +461,7 @@ export default function BuildPage() {
               <label className="text-sm text-muted">
                 Image mood
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   value={input.imageMood || ""}
                   onChange={(event) => setInput({ ...input, imageMood: event.target.value })}
                   placeholder="warm, luxury, natural light"
@@ -470,7 +470,7 @@ export default function BuildPage() {
               <label className="text-sm text-muted md:col-span-2">
                 Primary CTA text
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   value={input.primaryCta || ""}
                   onChange={(event) => setInput({ ...input, primaryCta: event.target.value })}
                   placeholder="Order now / Contact us"
@@ -481,7 +481,7 @@ export default function BuildPage() {
 
           {steps[step] === "Main Goal" && (
             <div className="mt-6">
-              <div className="rounded-xl border border-border bg-primary px-4 py-4 text-sm text-[#F8FAFC]">
+              <div className="rounded-xl border border-border bg-primary px-4 py-4 text-sm text-slate-900">
                 {GOAL_LABEL}
               </div>
             </div>
@@ -528,12 +528,12 @@ export default function BuildPage() {
 
               {products.map((product, index) => (
                 <div key={index} className="rounded-2xl border border-border bg-primary p-4">
-                  <p className="text-sm font-semibold text-[#F8FAFC]">Product {index + 1}</p>
+                  <p className="text-sm font-semibold text-slate-900">Product {index + 1}</p>
                   <div className="mt-3 grid gap-3 md:grid-cols-3">
                     <label className="text-sm text-muted">
                       Name
                       <input
-                        className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                        className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                         value={product.name}
                         onChange={(event) => {
                           const next = [...products];
@@ -545,7 +545,7 @@ export default function BuildPage() {
                     <label className="text-sm text-muted">
                       Price
                       <input
-                        className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                        className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                         value={product.price}
                         onChange={(event) => {
                           const next = [...products];
@@ -631,7 +631,7 @@ export default function BuildPage() {
               <label className="text-sm text-muted">
                 Phone
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   value={input.contact.phone}
                   onChange={(event) =>
                     setInput({
@@ -644,7 +644,7 @@ export default function BuildPage() {
               <label className="text-sm text-muted">
                 Email
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   value={input.contact.email}
                   onChange={(event) =>
                     setInput({
@@ -657,7 +657,7 @@ export default function BuildPage() {
               <label className="text-sm text-muted">
                 Address
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   value={input.contact.address}
                   onChange={(event) =>
                     setInput({
@@ -670,7 +670,7 @@ export default function BuildPage() {
               <label className="text-sm text-muted">
                 Business hours
                 <input
-                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-white placeholder-white/40"
+                  className="mt-2 w-full rounded-xl border border-border bg-primary p-3 text-slate-900 placeholder-slate-400"
                   value={input.contact.hours}
                   onChange={(event) =>
                     setInput({
@@ -757,7 +757,7 @@ export default function BuildPage() {
             )}
           </div>
           {lastError && (
-            <p className="mt-4 rounded-xl border border-border px-3 py-2 text-xs text-[#F8FAFC]">
+            <p className="mt-4 rounded-xl border border-border px-3 py-2 text-xs text-slate-900">
               {lastError}
             </p>
           )}

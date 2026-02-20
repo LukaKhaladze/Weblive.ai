@@ -32,7 +32,7 @@ export default function Header({ variant, props, editable, onEdit, onImageUpload
   const isSplitTagline = variant === "v4-split-tagline";
   const isAnnouncement = variant === "v10-announcement";
 
-  const baseText = "text-[#F8FAFC]";
+  const baseText = "text-slate-900";
   const mutedText = "text-muted";
 
   const frameClasses = [
@@ -111,9 +111,9 @@ export default function Header({ variant, props, editable, onEdit, onImageUpload
       href={ctaHref}
         className={`px-6 py-2.5 text-sm font-semibold ${
           isBordered
-          ? "rounded-[14px] border border-border text-[#F8FAFC] hover:bg-border"
+          ? "rounded-[14px] border border-border text-slate-900 hover:bg-border"
           : isTransparent
-          ? "rounded-[14px] border border-border text-[#F8FAFC] hover:bg-border"
+          ? "rounded-[14px] border border-border text-slate-900 hover:bg-border"
           : isDark
           ? "btn-primary rounded-[14px]"
           : isCompact

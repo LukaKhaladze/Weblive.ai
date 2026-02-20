@@ -14,7 +14,7 @@ export default function SeoPanel({ seo }: { seo: SeoPayload | null }) {
         <div className="mt-3 space-y-3">
           {seo.pages.map((page) => (
             <div key={page.slug} className="rounded-[18px] border border-border bg-primary p-3">
-              <p className="font-semibold text-[#F8FAFC]">{page.slug}</p>
+              <p className="font-semibold text-slate-900">{page.slug}</p>
               <p className="text-muted">Title: {page.title}</p>
               <p className="text-muted">Description: {page.description}</p>
               <p className="text-muted">Keywords: {page.keywords.join(", ")}</p>

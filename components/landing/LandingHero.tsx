@@ -75,7 +75,7 @@ export default function LandingHero() {
 
         <div className="mt-16 text-center md:mt-20">
           <p className="text-sm uppercase tracking-[0.3em] text-muted">Idea to website</p>
-          <h1 className="mx-auto mt-5 max-w-4xl text-4xl font-semibold leading-tight text-[#F8FAFC] sm:text-5xl md:text-6xl">
+          <h1 className="mx-auto mt-5 max-w-4xl text-4xl font-semibold leading-tight text-slate-900 sm:text-5xl md:text-6xl">
             <span className="block animate-[lift_8s_ease-in-out_infinite]">Generate it.</span>
             <span className="block animate-[lift_8s_ease-in-out_1.6s_infinite]">customize it.</span>
             <span className="block animate-[lift_8s_ease-in-out_3.2s_infinite]">launch it.</span>

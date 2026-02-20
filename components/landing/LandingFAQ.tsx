@@ -34,7 +34,7 @@ export default function LandingFAQ() {
 
   return (
     <section className="surface-card rounded-[28px] p-6 md:p-8">
-      <h2 className="text-2xl font-semibold text-[#F8FAFC]">FAQ</h2>
+      <h2 className="text-2xl font-semibold text-slate-900">FAQ</h2>
       <div className="mt-5 space-y-3">
         {items.map((item, index) => {
           const open = openIndex === index;
@@ -42,7 +42,7 @@ export default function LandingFAQ() {
             <article key={item.question} className="rounded-xl border border-border bg-primary">
               <button
                 type="button"
-                className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-[#F8FAFC]"
+                className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left text-sm font-semibold text-slate-900"
                 onClick={() => setOpenIndex(open ? null : index)}
                 aria-expanded={open}
                 aria-controls={`faq-panel-${index}`}

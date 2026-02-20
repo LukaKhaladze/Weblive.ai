@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
-  --brand-bg: #0f192b;
-  --brand-text: #f8fafc;
-  --brand-muted: #94a3b8;
-  --brand-border: #1e293b;
+  color-scheme: light;
+  --brand-bg: #ffffff;
+  --brand-text: #0f172a;
+  --brand-muted: #64748b;
+  --brand-border: #e2e8f0;
   --brand-accent-blue: #2f9bfd;
   --brand-accent-mid: #4d5cf3;
   --brand-accent-purple: #7333f2;
@@ -82,7 +82,7 @@ button {
 }
 
 .btn-secondary:hover {
-  background: var(--brand-border);
+  background: #f8fafc;
 }
 
 .weblive-text {

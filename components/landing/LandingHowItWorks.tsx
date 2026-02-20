@@ -27,14 +27,14 @@ function StepIcon({ index }: { index: number }) {
 export default function LandingHowItWorks() {
   return (
     <section className="surface-card rounded-[28px] p-6 md:p-8">
-      <h2 className="text-2xl font-semibold text-[#F8FAFC]">How it works</h2>
+      <h2 className="text-2xl font-semibold text-slate-900">How it works</h2>
       <div className="mt-6 grid gap-4 md:grid-cols-3">
         {steps.map((step, index) => (
           <article key={step.title} className="rounded-2xl border border-border bg-primary p-5">
             <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-primary">
               <StepIcon index={index} />
             </div>
-            <h3 className="mt-4 text-lg font-semibold text-[#F8FAFC]">{step.title}</h3>
+            <h3 className="mt-4 text-lg font-semibold text-slate-900">{step.title}</h3>
             <p className="mt-2 text-sm text-muted">{step.text}</p>
           </article>
         ))}

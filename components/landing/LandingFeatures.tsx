@@ -29,7 +29,7 @@ export default function LandingFeatures() {
             <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-primary">
               <MiniIcon index={index} />
             </div>
-            <h3 className="mt-4 text-2xl font-semibold text-[#F8FAFC]">{card.title}</h3>
+            <h3 className="mt-4 text-2xl font-semibold text-slate-900">{card.title}</h3>
             <p className="mt-2 text-sm text-muted">{card.description}</p>
           </article>
         ))}

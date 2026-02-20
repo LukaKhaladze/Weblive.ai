@@ -58,7 +58,7 @@ export default function WidgetReferencesClient() {
   }
 
   return (
-    <div className="min-h-screen bg-primary text-[#F8FAFC]">
+    <div className="min-h-screen bg-primary text-slate-900">
       <div className="mx-auto max-w-6xl px-6 py-12">
         <header className="flex items-center justify-between">
           <div>

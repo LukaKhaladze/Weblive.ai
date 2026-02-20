@@ -33,7 +33,7 @@ export default function SectionFrame({
   };
 
   const iconBtn =
-    "rounded-full border border-border bg-primary p-2 text-muted hover:bg-border hover:text-[#F8FAFC]";
+    "rounded-full border border-border bg-primary p-2 text-muted hover:bg-border hover:text-slate-900";
 
   return (
     <div
@@ -85,7 +85,7 @@ export default function SectionFrame({
           </svg>
         </button>
         <button
-          className={`${iconBtn} text-[#F8FAFC]`}
+          className={`${iconBtn} text-slate-900`}
           onClick={(event) => {
             event.stopPropagation();
             onDelete();

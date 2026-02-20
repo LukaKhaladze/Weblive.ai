@@ -1,7 +1,7 @@
 export default function LandingDomainCTA() {
   return (
     <section className="surface-card rounded-[28px] p-6 md:p-8">
-      <h2 className="text-2xl font-semibold text-[#F8FAFC]">Find the perfect domain</h2>
+      <h2 className="text-2xl font-semibold text-slate-900">Find the perfect domain</h2>
       <p className="mt-2 text-sm text-muted">
         Secure your brand identity and get your business online with a domain that matches your product.
       </p>

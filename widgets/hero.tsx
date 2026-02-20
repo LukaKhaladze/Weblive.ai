@@ -107,7 +107,7 @@ export default function Hero({
       )}
       {renderText(
         "h2",
-        "text-4xl font-semibold tracking-tight text-[#F8FAFC]",
+        "text-4xl font-semibold tracking-tight text-slate-900",
         props.headline,
         "headline"
       )}
@@ -156,7 +156,7 @@ export default function Hero({
         <div className="relative z-10 px-10 py-16">
           <div className="max-w-2xl space-y-5">
             {props.eyebrow && (
-              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-primary/60 px-3 py-1 text-xs font-semibold text-[#F8FAFC]">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-primary/60 px-3 py-1 text-xs font-semibold text-slate-900">
                 {renderText("span", "font-semibold", props.eyebrow, "eyebrow")}
               </div>
             )}
@@ -263,7 +263,7 @@ export default function Hero({
           <div className="space-y-5">
             {renderText(
               "h2",
-              "text-4xl font-semibold tracking-tight text-[#F8FAFC]",
+              "text-4xl font-semibold tracking-tight text-slate-900",
               props.headline,
               "headline"
             )}
@@ -296,7 +296,7 @@ export default function Hero({
                 )}
                 {renderText(
                   "p",
-                  "text-2xl font-semibold text-[#F8FAFC]",
+                  "text-2xl font-semibold text-slate-900",
                   stat.value,
                   `stats.${index}.value`
                 )}
@@ -327,7 +327,7 @@ export default function Hero({
               <div className="space-y-3 p-4">
                 {renderText(
                   "p",
-                  "text-lg font-semibold text-[#F8FAFC]",
+                  "text-lg font-semibold text-slate-900",
                   product.name || `Product ${index + 1}`,
                   `products.${index}.name`
                 )}

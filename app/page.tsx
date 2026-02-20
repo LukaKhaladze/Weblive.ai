@@ -12,7 +12,7 @@ import Image from "next/image";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-primary text-[#F8FAFC]">
+    <div className="min-h-screen bg-primary text-slate-900">
       <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 md:space-y-10 md:py-12">
         <LandingHero />
         <LandingEmailCapture />

@@ -41,7 +41,7 @@ export default function AccessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-primary text-[#F8FAFC] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-primary text-slate-900 flex items-center justify-center px-6">
       <div className="surface-card w-full max-w-md p-6">
         <h1 className="text-2xl font-semibold">Protected Access</h1>
         <p className="mt-2 text-sm text-muted">Enter password to continue.</p>
@@ -51,7 +51,7 @@ export default function AccessPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-[14px] border border-border bg-primary px-4 py-3 text-sm text-[#F8FAFC]"
+            className="w-full rounded-[14px] border border-border bg-primary px-4 py-3 text-sm text-slate-900"
             placeholder="Password"
             required
           />
@@ -60,7 +60,7 @@ export default function AccessPage() {
           </button>
         </form>
 
-        {error && <p className="mt-3 text-sm text-[#F8FAFC]">{error}</p>}
+        {error && <p className="mt-3 text-sm text-slate-900">{error}</p>}
       </div>
     </div>
   );
