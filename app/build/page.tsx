@@ -293,7 +293,14 @@ export default function BuildPage() {
         });
       }
 
-      router.push(`/e/${data.edit_token}`);
+      if (!data?.edit_token || typeof data.edit_token !== "string") {
+        throw new Error("Generation response missing edit_token");
+      }
+      if (typeof window !== "undefined") {
+        window.location.href = `/e/${data.edit_token}`;
+      } else {
+        router.push(`/e/${data.edit_token}`);
+      }
       return;
     } catch (error) {
       console.error("Build generate failed", error);
